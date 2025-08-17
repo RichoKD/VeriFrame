@@ -3,7 +3,6 @@
 ## 1. Initialize the Project
 
 ```bash
-cd /home/rico/cairo/VeriFrame
 npx create-next-app@latest frontend --typescript --tailwind --eslint --app --src-dir
 cd frontend
 ```
