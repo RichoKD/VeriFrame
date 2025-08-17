@@ -1,6 +1,13 @@
-# This Dockerfile sets up a Python environment for the VeriFrame worker.
+# This Dockerfile sets up a Python environment for the VeriFrame worker with Blender.
 
 FROM python:3.11-slim
+
+# Install Blender and system dependencies
+RUN apt-get update && apt-get install -y \
+    blender \
+    wget \
+    xvfb \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -8,5 +15,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+
+# Set environment variable for Blender path
+ENV BLENDER_PATH=blender
 
 CMD ["python", "src/main.py"]

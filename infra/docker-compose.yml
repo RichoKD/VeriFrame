@@ -6,7 +6,8 @@ services:
     container_name: starknet-devnet
     ports:
       - "5050:5050"
-    command: ["--gas-price", "1", "--host", "0.0.0.0"]
+    command: ["--gas-price", "1"]
+    # command: ["--gas-price", "1", "--host", "0.0.0.0"]
     # command: ["--seed", "42", "--gas-price", "0", "--host", "0.0.0.0"]
     networks:
       - veri-frame-net

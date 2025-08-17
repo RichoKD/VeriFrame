@@ -1,2 +1,5 @@
-starknet_py==0.17.0
-ipfshttpclient==0.8.0a2
+starknet_py>=0.27.0
+ipfshttpclient
+# For Blender rendering in headless mode, Blender should be installed on the system
+# Additional packages for image processing and validation
+Pillow>=10.0.0>=0.8.0a2
