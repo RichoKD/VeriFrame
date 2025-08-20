@@ -35,7 +35,7 @@ export default function Home() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Reward Amount (ETH)
+                  Reward Amount (STRK)
                 </label>
                 <input
                   type="number"
