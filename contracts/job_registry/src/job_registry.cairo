@@ -15,16 +15,17 @@ pub trait IJobRegistry<TContractState> {
     // Initializes the contract by setting the ERC20 token address.
     fn initialize_token_address(ref self: TContractState, token_address: felt252);
     // Creates a new job and escrows the reward. Returns the new job ID.
-    fn create_job(ref self: TContractState, asset_cid: felt252, reward_amount: u256, deadline_timestamp: u64) -> felt252;
+    fn create_job(ref self: TContractState, asset_cid_part1: felt252, asset_cid_part2: felt252, reward_amount: u256, deadline_timestamp: u64) -> felt252;
     // Allows a worker to submit a result.
     fn submit_result(ref self: TContractState, job_id: felt252, result_cid: felt252);
     // Finalizes a job and pays the reward to the worker.
     fn finalize_job(ref self: TContractState, job_id: felt252);
     // Getter functions to read job details.
+    fn get_job_counter(self: @TContractState) -> felt252;
     fn get_job_creator(self: @TContractState, job_id: felt252) -> felt252;
     fn get_job_worker(self: @TContractState, job_id: felt252) -> felt252;
     fn get_job_reward(self: @TContractState, job_id: felt252) -> u256;
-    fn get_job_asset_cid(self: @TContractState, job_id: felt252) -> felt252;
+    fn get_job_asset_cid(self: @TContractState, job_id: felt252) -> (felt252, felt252);
 }
 
 // The main contract module.
@@ -39,7 +40,8 @@ mod JobRegistry {
     // Storage struct containing all the contract's state variables.
     #[storage]
     struct Storage {
-        job_asset_cid: Map<felt252, felt252>,
+        job_asset_cid_part1: Map<felt252, felt252>,
+        job_asset_cid_part2: Map<felt252, felt252>,
         job_reward: Map<felt252, u256>,
         job_creator: Map<felt252, felt252>,
         job_deadline: Map<felt252, u64>,
@@ -61,7 +63,8 @@ mod JobRegistry {
         // Creates a new job, taking in the job details and transferring the reward.
         fn create_job(
             ref self: ContractState,
-            asset_cid: felt252,
+            asset_cid_part1: felt252,
+            asset_cid_part2: felt252,
             reward_amount: u256,
             deadline_timestamp: u64
         ) -> felt252 {
@@ -87,7 +90,8 @@ mod JobRegistry {
 
             // Store the job details.
             self.job_creator.write(job_id, caller);
-            self.job_asset_cid.write(job_id, asset_cid);
+            self.job_asset_cid_part1.write(job_id, asset_cid_part1);
+            self.job_asset_cid_part2.write(job_id, asset_cid_part2);
             self.job_reward.write(job_id, reward_amount);
             self.job_deadline.write(job_id, deadline_timestamp);
 
@@ -132,13 +136,18 @@ mod JobRegistry {
             // Clear storage variables to mark the job as complete.
             self.job_creator.write(job_id, 0);
             self.job_worker.write(job_id, 0);
-            self.job_asset_cid.write(job_id, 0);
+            self.job_asset_cid_part1.write(job_id, 0);
+            self.job_asset_cid_part2.write(job_id, 0);
             self.job_result_cid.write(job_id, 0);
             self.job_deadline.write(job_id, 0);
             self.job_reward.write(job_id, u256 { low: 0, high: 0 });
         }
         
         // --- Getter Functions ---
+        
+        fn get_job_counter(self: @ContractState) -> felt252 {
+            self.job_counter.read()
+        }
         
         fn get_job_creator(self: @ContractState, job_id: felt252) -> felt252 {
             self.job_creator.read(job_id)
@@ -152,8 +161,8 @@ mod JobRegistry {
             self.job_reward.read(job_id)
         }
 
-        fn get_job_asset_cid(self: @ContractState, job_id: felt252) -> felt252 {
-            self.job_asset_cid.read(job_id)
+        fn get_job_asset_cid(self: @ContractState, job_id: felt252) -> (felt252, felt252) {
+            (self.job_asset_cid_part1.read(job_id), self.job_asset_cid_part2.read(job_id))
         }
     }
 }

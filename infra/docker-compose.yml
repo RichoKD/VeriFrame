@@ -35,6 +35,8 @@ services:
       - ipfs_data:/data/ipfs
     networks:
       - veri-frame-net
+    environment:
+      - IPFS_API_ORIGINS=http://localhost:3000
 
   # worker:
   #   build:
