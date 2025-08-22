@@ -10,31 +10,48 @@ echo "[INIT] Compiling Cairo contract..."
 cd /contracts/job_registry
 scarb build 
 
-# Use starkli for deployment
+# Use sncast (from starknet-foundry) for deployment with imported devnet account
 echo "[INIT] Deploying contract to Devnet..."
 
-# NOTE: Starkli uses starkli.json for account management. 
-# We'll need to create a temporary account for deployment.
-# Starknet Devnet's seed=0 pre-funds an account you can use for this.
-starkli --host http://starknet-devnet:5050 \
-  --keystore ~/.starkli-wallets/deployer/keys/default_key \
-  --account-path ~/.starkli-wallets/deployer/accounts/default_account.json \
-  account create --salt 0x0
+# Set environment variables for account
+export STARKNET_RPC_URL="http://starknet-devnet:5050"
+export STARKNET_ACCOUNT="0x064b48806902a367c8598f4f95c305e8c1a1acba5f082d294a43793113115691"
 
-# The deploy command has changed. We need to use the contract class hash first.
-# This finds the contract class hash from the build output.
-CLASS_HASH=$(jq '.contract_class.class_hash' target/dev/job_registry_JobRegistry.sierra.json)
+# Import the pre-funded devnet account (ignore warnings/errors, just create account file)
+echo "[INIT] Importing pre-funded devnet account..."
+sncast account import \
+  --url http://starknet-devnet:5050 \
+  --name devnet-deployer \
+  --address 0x064b48806902a367c8598f4f95c305e8c1a1acba5f082d294a43793113115691 \
+  --private-key 0x0000000000000000000000000000000071d7bb07b9a64f6f78ac4c816aff4da9 \
+  --type oz || echo "[INIT] Account import attempted (may have warnings)"
 
-echo "[INIT] Deploying contract with class hash: $CLASS_HASH"
-DEPLOY_OUTPUT=$(starkli --host http://starknet-devnet:5050 \
-  --keystore ~/.starkli-wallets/deployer/keys/default_key \
-  --account-path ~/.starkli-wallets/deployer/accounts/default_account.json \
-  deploy $CLASS_HASH \
-  --wait)
+echo "[INIT] Account import completed"
+
+# Declare the contract without profile
+echo "[INIT] Declaring contract..."
+DECLARE_OUTPUT=$(sncast declare \
+  --url http://starknet-devnet:5050 \
+  --account devnet-deployer \
+  --contract-name JobRegistry)
+
+echo "$DECLARE_OUTPUT"
+
+# Extract class hash from declare output - try different patterns
+CLASS_HASH=$(echo "$DECLARE_OUTPUT" | grep -E "(class_hash|Class hash)" | awk '{print $NF}' | tr -d ',' | tr -d '"')
+echo "[INIT] Contract declared with class hash: $CLASS_HASH"
+
+# Deploy the contract without profile
+echo "[INIT] Deploying contract..."
+DEPLOY_OUTPUT=$(sncast deploy \
+  --url http://starknet-devnet:5050 \
+  --account devnet-deployer \
+  --class-hash $CLASS_HASH)
+
 echo "$DEPLOY_OUTPUT"
 
-# Extract the contract address from the output
-ADDR=$(echo "$DEPLOY_OUTPUT" | grep "Contract address" | awk '{print $3}')
+# Extract the contract address from the output - try different patterns
+ADDR=$(echo "$DEPLOY_OUTPUT" | grep -E "(contract_address|Contract address)" | awk '{print $NF}' | tr -d ',' | tr -d '"')
 echo "[INIT] Contract deployed at: $ADDR"
 
 echo "JOB_REGISTRY_ADDRESS=$ADDR" > /infra/worker.env
