@@ -7,6 +7,9 @@ edition = "2024_07"
 
 [dependencies]
 starknet = "2.11.4"
+openzeppelin_access = "2.0.0"
+openzeppelin_token = "2.0.0"
+openzeppelin_security = "2.0.0"
 # cairo_execute = "2.11.4"
 
 

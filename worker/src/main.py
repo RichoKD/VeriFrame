@@ -10,6 +10,11 @@ import hashlib
 import tarfile
 import zipfile
 
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+print(os.getenv("STARKNET_RPC"))
 # Try to import starknet_py components with better error handling
 try:
     from starknet_py.net.full_node_client import FullNodeClient
@@ -33,14 +38,16 @@ except ImportError:
     IPFS_CLIENT_AVAILABLE = False
     print("[Worker] ipfshttpclient not available, using requests fallback")
 
-# STARKNET_RPC = os.getenv("STARKNET_RPC", "http://localhost:5050")
+STARKNET_RPC = os.getenv("STARKNET_RPC", "http://localhost:5050")
 # IPFS_API = os.getenv("IPFS_API", "/dns/ipfs-node/tcp/5001/http")
-# JOB_REGISTRY_ADDRESS = int(os.getenv("JOB_REGISTRY_ADDRESS", "0"), 16)
+JOB_REGISTRY_ADDRESS = int(os.getenv("JOB_REGISTRY_ADDRESS", "0"), 16)
+IPFS_API = os.getenv("IPFS_API", "http://127.0.0.1:5001")
+IPFS_GATEWAY = os.getenv("IPFS_GATEWAY", "http://127.0.0.1:8080/ipfs")
 
-STARKNET_RPC = "https://api.cartridge.gg/x/starknet/sepolia"
-IPFS_API = "http://127.0.0.1:5001"
-IPFS_GATEWAY = "http://127.0.0.1:8080/ipfs"
-JOB_REGISTRY_ADDRESS = int("0x0000f133b188900619b3df297bb72e46cc82b246a030acd14c132c12a32beafa", 16)
+# STARKNET_RPC = "https://api.cartridge.gg/x/starknet/sepolia"
+# IPFS_API = "http://127.0.0.1:5001"
+# IPFS_GATEWAY = "http://127.0.0.1:8080/ipfs"
+# JOB_REGISTRY_ADDRESS = int("0x0000f133b188900619b3df297bb72e46cc82b246a030acd14c132c12a32beafa", 16)
 BLENDER_PATH = os.getenv("BLENDER_PATH", "blender")  # Path to Blender executable
 
 # Load the contract ABI with proper type definitions
@@ -604,11 +611,28 @@ async def upload_render_result(ipfs, render_path):
         print(f"[Worker] Error uploading render result: {e}")
         return None
 
-async def check_for_jobs(contract, max_job_id=100):
+async def check_for_jobs(contract, max_job_id=5):
     """Check for available jobs by iterating through job IDs"""
     available_jobs = []
-    
-    for job_id in range(2, max_job_id + 1):
+
+    # Read completed jobs to avoid reprocessing
+    completed_jobs = set()
+    try:
+        results_file = os.path.join(os.path.dirname(__file__), "temp", "completed_jobs.json")
+        if os.path.exists(results_file):
+            with open(results_file, 'r') as f:
+                results = json.load(f)
+                completed_jobs = {result['job_id'] for result in results}
+            print(f"[Worker] Loaded {len(completed_jobs)} completed jobs: {completed_jobs}")
+    except Exception as e:
+        print(f"[Worker] Error loading completed jobs: {e}")
+
+    for job_id in range(1, max_job_id + 1):
+        # Skip already completed jobs
+        if job_id in completed_jobs:
+            print(f"[Worker] Skipping already completed job {job_id}")
+            continue
+            
         try:
             # Check if job exists by getting creator
             creator_response = await contract.functions["get_job_creator"].call(job_id)
