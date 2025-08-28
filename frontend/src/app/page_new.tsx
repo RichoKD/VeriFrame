@@ -81,7 +81,7 @@ export default function Home() {
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-900">
-                    Reward: 0.05 ETH
+                    Reward: 0.05 STRK
                   </span>
                   <span className="text-xs text-gray-500">
                     Deadline: 2h 30m
@@ -110,7 +110,7 @@ export default function Home() {
           </div>
           <div className="bg-white rounded-lg shadow p-6 text-center">
             <h3 className="text-lg font-semibold text-gray-900">Total Rewards</h3>
-            <p className="text-3xl font-bold text-purple-600 mt-2">0 ETH</p>
+            <p className="text-3xl font-bold text-purple-600 mt-2">0 STRK</p>
           </div>
         </div>
       </div>

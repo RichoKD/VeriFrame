@@ -1,116 +1,204 @@
+
 use starknet::ContractAddress;
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address, stop_cheat_caller_address};
 use veriframe_job_registry::job_registry::{IJobRegistryDispatcher, IJobRegistryDispatcherTrait};
 
-fn setup_job_registry() -> (IJobRegistryDispatcher, ContractAddress) {
-    // Deploy JobRegistry contract
-    let owner: ContractAddress = 123.try_into().unwrap();
-    let token_address: felt252 = 999; // Mock token address
-    let job_registry_class = declare("JobRegistry").unwrap().contract_class();
-    let mut constructor_calldata = ArrayTrait::new();
-    constructor_calldata.append(owner.into());
-    constructor_calldata.append(token_address);
+// Mock ERC20 contract for testing
+#[starknet::contract]
+mod MockERC20 {
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     
-    let (job_registry_address, _) = job_registry_class.deploy(@constructor_calldata).unwrap();
-    let job_registry = IJobRegistryDispatcher { contract_address: job_registry_address };
+    #[storage]
+    struct Storage {
+        balances: Map<felt252, u256>,
+        allowances: Map<(felt252, felt252), u256>,
+        total_supply: u256,
+    }
+    
+    #[abi(embed_v0)]
+    impl MockERC20Impl of veriframe_job_registry::job_registry::IERC20<ContractState> {
+        fn transfer(ref self: ContractState, recipient: felt252, amount: u256) {
+            // Simple transfer implementation for testing
+        }
+        
+        fn transfer_from(ref self: ContractState, sender: felt252, recipient: felt252, amount: u256) {
+            // Always return success for testing
+        }
+    }
+    
+    #[starknet::interface]
+    trait MockERC20ExternalTrait<TContractState> {
+        fn transferFrom(ref self: TContractState, sender: felt252, recipient: felt252, amount: u256) -> felt252;
+    }
 
-    (job_registry, job_registry_address)
+    #[abi(embed_v0)]
+    impl MockERC20External of MockERC20ExternalTrait<ContractState> {
+        fn transferFrom(ref self: ContractState, sender: felt252, recipient: felt252, amount: u256) -> felt252 {
+            // Always return 1 (success) for testing
+            1
+        }
+    }
+    
+    #[generate_trait]
+    impl MockERC20HelperImpl of MockERC20HelperTrait {
+        fn mint(ref self: ContractState, to: felt252, amount: u256) {
+            let current_balance = self.balances.read(to);
+            self.balances.write(to, current_balance + amount);
+        }
+        
+        fn set_allowance(ref self: ContractState, owner: felt252, spender: felt252, amount: u256) {
+            self.allowances.write((owner, spender), amount);
+        }
+    }
 }
 
-#[test]
-fn test_contract_deployment() {
-    let (job_registry, _) = setup_job_registry();
-    
-    // Test that job counter starts at 0
-    let counter = job_registry.get_job_counter();
-    assert(counter == 0, 'Initial counter should be 0');
+fn deploy_mock_erc20() -> ContractAddress {
+    let contract = declare("MockERC20").unwrap().contract_class();
+    let (contract_address, _) = contract.deploy(@ArrayTrait::new()).unwrap();
+    contract_address
 }
 
-#[test] 
-fn test_job_counter_increments() {
-    let (job_registry, _) = setup_job_registry();
-    
-    // Initially counter should be 0
-    assert(job_registry.get_job_counter() == 0, 'Initial counter 0');
-    
-    // The counter should remain 0 if no jobs are created
-    let counter_after = job_registry.get_job_counter();
-    assert(counter_after == 0, 'Counter should remain 0');
+fn deploy_job_registry() -> ContractAddress {
+    let contract = declare("JobRegistry").unwrap().contract_class();
+    let (contract_address, _) = contract.deploy(@ArrayTrait::new()).unwrap();
+    contract_address
 }
 
-#[test]
-fn test_getter_functions_empty_job() {
-    let (job_registry, _) = setup_job_registry();
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use veriframe_job_registry::job_registry::{IJobRegistryDispatcher, IJobRegistryDispatcherTrait};
     
-    // Test getters for non-existent job (using job ID 1)
-    assert(job_registry.get_job_creator(1) == 0, 'Creator should be 0');
-    assert(job_registry.get_job_worker(1) == 0, 'Worker should be 0');
-    assert(job_registry.get_job_reward(1) == u256 { low: 0, high: 0 }, 'Reward should be 0');
-    
-    let (cid_part1, cid_part2) = job_registry.get_job_asset_cid(1);
-    assert(cid_part1 == 0, 'CID part1 should be 0');
-    assert(cid_part2 == 0, 'CID part2 should be 0');
-}
+    #[test]
+    fn test_create_job_success() {
+        // Deploy contracts
+        let token_address = deploy_mock_erc20();
+        let job_registry_address = deploy_job_registry();
+        
+        let job_registry = IJobRegistryDispatcher { contract_address: job_registry_address };
+        
+        // Initialize token address
+        let token_address_felt: felt252 = token_address.into();
+        job_registry.initialize_token_address(token_address_felt);
+        
+        // Set up test parameters
+        let creator_address: felt252 = 0x123;
+        let asset_cid_part1: felt252 = 0x456;
+        let asset_cid_part2: felt252 = 0x789;
+        let reward_amount: u256 = u256 { low: 1000, high: 0 };
+        let deadline_timestamp: u64 = 1000;
+        
+        // Mock the caller as the job creator
+        start_cheat_caller_address(job_registry_address, creator_address.try_into().unwrap());
+        
+        // Create the job
+        let job_id = job_registry.create_job(asset_cid_part1, asset_cid_part2, reward_amount, deadline_timestamp);
+        
+        // Stop cheating caller address
+        stop_cheat_caller_address(job_registry_address);
+        
+        // Verify job was created successfully
+        assert(job_id == 1, 'First job should have ID 1');
+        assert(job_registry.get_job_counter() == 1, 'Job counter should be 1');
+        assert(job_registry.get_job_creator(job_id) == creator_address, 'Creator should match');
+        assert(job_registry.get_job_reward(job_id) == reward_amount, 'Reward should match');
+        
+        let (cid_part1, cid_part2) = job_registry.get_job_asset_cid(job_id);
+        assert(cid_part1 == asset_cid_part1, 'Asset CID part1 should match');
+        assert(cid_part2 == asset_cid_part2, 'Asset CID part2 should match');
+    }
 
-#[test]
-fn test_multiple_job_ids() {
-    let (job_registry, _) = setup_job_registry();
-    
-    // Test that we can query multiple job IDs without issues
-    let job_id_1 = 1_felt252;
-    let job_id_2 = 2_felt252;
-    let job_id_3 = 5_felt252;
-    
-    assert(job_registry.get_job_creator(job_id_1) == 0, 'Creator 1 should be 0');
-    assert(job_registry.get_job_creator(job_id_2) == 0, 'Creator 2 should be 0');
-    assert(job_registry.get_job_creator(job_id_3) == 0, 'Creator 5 should be 0');
-    
-    assert(job_registry.get_job_worker(job_id_1) == 0, 'Worker 1 should be 0');
-    assert(job_registry.get_job_worker(job_id_2) == 0, 'Worker 2 should be 0');
-    assert(job_registry.get_job_worker(job_id_3) == 0, 'Worker 5 should be 0');
+    #[test]
+    fn test_create_job_increments_counter() {
+        // Deploy contracts
+        let token_address = deploy_mock_erc20();
+        let job_registry_address = deploy_job_registry();
+        
+        let job_registry = IJobRegistryDispatcher { contract_address: job_registry_address };
+        
+        // Initialize token address
+        job_registry.initialize_token_address(token_address.into());
+        
+        // Initial counter should be 0
+        assert(job_registry.get_job_counter() == 0, 'Initial counter should be 0');
+        
+        // Set up test parameters
+        let creator_address: felt252 = 0x123;
+        let asset_cid_part1: felt252 = 0x456;
+        let asset_cid_part2: felt252 = 0x789;
+        let reward_amount: u256 = u256 { low: 1000, high: 0 };
+        let deadline_timestamp: u64 = 1000;
+        
+        // Mock the caller as the job creator
+        start_cheat_caller_address(job_registry_address, creator_address.try_into().unwrap());
+        
+        // Create first job
+        let job_id1 = job_registry.create_job(asset_cid_part1, asset_cid_part2, reward_amount, deadline_timestamp);
+        assert(job_id1 == 1, 'First job ID should be 1');
+        assert(job_registry.get_job_counter() == 1, 'Counter should be 1');
+        
+        // Create second job
+        let job_id2 = job_registry.create_job(asset_cid_part1, asset_cid_part2, reward_amount, deadline_timestamp);
+        assert(job_id2 == 2, 'Second job ID should be 2');
+        assert(job_registry.get_job_counter() == 2, 'Counter should be 2');
+        
+        // Stop cheating caller address
+        stop_cheat_caller_address(job_registry_address);
+    }
 }
+// #[test]
+// #[should_panic(expected: ('Token address not set',))]
+// fn test_create_job_fails_without_token_address() {
+//     // Deploy job registry without initializing token address
+//     let job_registry_address = deploy_job_registry();
+//     let job_registry = IJobRegistryDispatcher { contract_address: job_registry_address };
+    
+//     // Set up test parameters
+//     let creator_address: felt252 = 0x123;
+//     let asset_cid_part1: felt252 = 0x456;
+//     let asset_cid_part2: felt252 = 0x789;
+//     let reward_amount: u256 = u256 { low: 1000, high: 0 };
+//     let deadline_timestamp: u64 = 1000;
+    
+//     // Mock the caller as the job creator
+//     start_cheat_caller_address(job_registry_address, creator_address.try_into().unwrap());
+    
+//     // This should panic because token address is not set
+//     job_registry.create_job(asset_cid_part1, asset_cid_part2, reward_amount, deadline_timestamp);
+// }
 
-#[test]
-fn test_contract_state_consistency() {
-    let (job_registry, _) = setup_job_registry();
+// #[test]
+// fn test_create_job_with_different_parameters() {
+//     // Deploy contracts
+//     let token_address = deploy_mock_erc20();
+//     let job_registry_address = deploy_job_registry();
     
-    // Test that the contract state is consistent across multiple calls
-    let counter1 = job_registry.get_job_counter();
-    let counter2 = job_registry.get_job_counter();
-    assert(counter1 == counter2, 'Counters should match');
+//     let job_registry = IJobRegistryDispatcher { contract_address: job_registry_address };
     
-    // Test that empty job data is consistent
-    let creator1 = job_registry.get_job_creator(1);
-    let creator2 = job_registry.get_job_creator(1);
-    assert(creator1 == creator2, 'Creators should match');
+//     // Initialize token address
+//     job_registry.initialize_token_address(token_address.into());
     
-    let (cid1_1, cid1_2) = job_registry.get_job_asset_cid(1);
-    let (cid2_1, cid2_2) = job_registry.get_job_asset_cid(1);
-    assert(cid1_1 == cid2_1 && cid1_2 == cid2_2, 'CIDs should match');
-}
-
-#[test]
-fn test_job_data_zero_values() {
-    let (job_registry, _) = setup_job_registry();
+//     // Test with different parameter values
+//     let creator_address: felt252 = 0x999;
+//     let asset_cid_part1: felt252 = 0xabc;
+//     let asset_cid_part2: felt252 = 0xdef;
+//     let reward_amount: u256 = u256 { low: 5000, high: 1 }; // Large reward
+//     let deadline_timestamp: u64 = 9999;
     
-    // Test that all job data returns zero/empty values for non-existent jobs
-    let job_id = 100_felt252;
+//     // Mock the caller as the job creator
+//     start_cheat_caller_address(job_registry_address, creator_address.try_into().unwrap());
     
-    // Check creator
-    let creator = job_registry.get_job_creator(job_id);
-    assert(creator == 0, 'Creator should be 0');
+//     // Create the job
+//     let job_id = job_registry.create_job(asset_cid_part1, asset_cid_part2, reward_amount, deadline_timestamp);
     
-    // Check worker
-    let worker = job_registry.get_job_worker(job_id);
-    assert(worker == 0, 'Worker should be 0');
+//     // Stop cheating caller address
+//     stop_cheat_caller_address(job_registry_address);
     
-    // Check reward
-    let reward = job_registry.get_job_reward(job_id);
-    let zero_reward = u256 { low: 0, high: 0 };
-    assert(reward == zero_reward, 'Reward should be 0');
+//     // Verify all parameters are stored correctly
+//     assert(job_registry.get_job_creator(job_id) == creator_address, 'Creator should match');
+//     assert(job_registry.get_job_reward(job_id) == reward_amount, 'Large reward should match');
     
-    // Check asset CID
-    let (cid_part1, cid_part2) = job_registry.get_job_asset_cid(job_id);
-    assert(cid_part1 == 0, 'CID part1 should be 0');
-    assert(cid_part2 == 0, 'CID part2 should be 0');
-}
+//     let (cid_part1, cid_part2) = job_registry.get_job_asset_cid(job_id);
+//     assert(cid_part1 == asset_cid_part1, 'Asset CID part1 should match');
+//     assert(cid_part2 == asset_cid_part2, 'Asset CID part2 should match');
+// }

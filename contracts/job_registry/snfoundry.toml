@@ -1,7 +1,7 @@
 # Visit https://foundry-rs.github.io/starknet-foundry/appendix/snfoundry-toml.html
 # and https://foundry-rs.github.io/starknet-foundry/projects/configuration.html for more information
 
-# [sncast.stark1]                                         # Define a profile name
+[sncast.stark1]                                         # Define a profile name
 url = "https://api.cartridge.gg/x/starknet/sepolia" # Url of the RPC provider
 accounts-file = "~/.starknet_accounts/starknet_open_zeppelin_accounts.json"                        # Path to the file with the account data
 account = "stark1"                                     # Account from `accounts_file` or default account file that will be used for the transactions

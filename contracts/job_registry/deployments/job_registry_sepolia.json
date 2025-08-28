@@ -1,0 +1,9 @@
+{
+  "network": "sepolia",
+  "account": "stark1",
+  "contract_name": "JobRegistry",
+  "class_hash": "0x01bebf773980988bae8f86cc522d1c9a7b85caf9c1a39d03370e477640234656",
+  "contract_address": "0x05a98233354356d31543b28e2f613fa763ca93a5361505765bad58d926d03ce6",
+  "deployed_at": "2025-08-23T18:00:44Z",
+  "abi_path": "target/dev/veriframe_job_registry_JobRegistry.contract_class.json"
+}

@@ -1,28 +1,26 @@
 # version: "3.8"
 
 services:
-  starknet-devnet:
-    image: shardlabs/starknet-devnet-rs:latest-seed0
-    container_name: starknet-devnet
-    ports:
-      - "5050:5050"
-    command: ["--gas-price", "1"]
-    # command: ["--gas-price", "1", "--host", "0.0.0.0"]
-    # command: ["--seed", "42", "--gas-price", "0", "--host", "0.0.0.0"]
-    networks:
-      - veri-frame-net
+  # starknet-devnet:
+  #   image: shardlabs/starknet-devnet-rs:latest-seed0
+  #   container_name: starknet-devnet
+  #   ports:
+  #     - "5050:5050"
+  #   command: ["--gas-price", "1"]
+  #   networks:
+  #     - veri-frame-net
 
-  devnet-init:
-    build:
-      context: ..
-      dockerfile: infra/devnet-init.Dockerfile
-    depends_on:
-      - starknet-devnet
-    volumes:
-      - ../contracts/job_registry:/contracts/job_registry
-      - ./worker.env:/infra/worker.env
-    networks:
-      - veri-frame-net
+  # devnet-init:
+  #   build:
+  #     context: ..
+  #     dockerfile: infra/devnet-init.Dockerfile
+  #   depends_on:
+  #     - starknet-devnet
+  #   volumes:
+  #     - ../contracts/job_registry:/contracts/job_registry
+  #     - ./worker.env:/infra/worker.env
+  #   networks:
+  #     - veri-frame-net
 
   ipfs-node:
     image: ipfs/kubo:latest
@@ -38,43 +36,24 @@ services:
     environment:
       - IPFS_API_ORIGINS=http://localhost:3000
 
-  # worker:
-  #   build:
-  #     context: ../worker
-  #     dockerfile: Dockerfile
-  #   container_name: veri-frame-worker
-  #   environment:
-  #     - STARKNET_RPC=http://starknet-devnet:5050
-  #     - IPFS_API=http://ipfs-node:5001
-  #     - JOB_REGISTRY_ADDRESS=0x0
-  #     - WORKER_PRIVATE_KEY=0xabc123...
-  #     - WORKER_ACCOUNT_ADDRESS=0xdef456...
-  #   depends_on:
-  #     - starknet-devnet
-  #     - ipfs-node
-  #   networks:
-  #     - veri-frame-net
-  #   volumes:
-  #     - ../worker:/app
+#   worker:
+#     build:
+#       context: ../worker
+#       dockerfile: Dockerfile
+#     container_name: veri-frame-worker
+#     env_file:
+#       - ./worker.env
+#     depends_on:
+#       - devnet-init
+#       - ipfs-node
+#     networks:
+#       - veri-frame-net
+#     volumes:
+#       - ../worker:/app
 
-  worker:
-    build:
-      context: ../worker
-      dockerfile: Dockerfile
-    container_name: veri-frame-worker
-    env_file:
-      - ./worker.env
-    depends_on:
-      - devnet-init
-      - ipfs-node
-    networks:
-      - veri-frame-net
-    volumes:
-      - ../worker:/app
+# volumes:
+#   ipfs_data:
 
-volumes:
-  ipfs_data:
-
-networks:
-  veri-frame-net:
-    driver: bridge
+# networks:
+#   veri-frame-net:
+#     driver: bridge
