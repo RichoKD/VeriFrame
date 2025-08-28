@@ -1,5 +1,6 @@
 
 // Only keep imports that are actually used at the module level
+// use starknet::ContractAddress;
 
 // Interface for the ERC20 token, needed for reward transfers.
 #[starknet::interface]
@@ -13,11 +14,11 @@ pub trait IERC20<TContractState> {
 #[starknet::interface]
 pub trait IJobRegistry<TContractState> {
     // Initializes the contract by setting the ERC20 token address.
-    fn initialize_token_address(ref self: TContractState, token_address: felt252);
+    // fn initialize_token_address(ref self: TContractState, token_address: felt252);
     // Creates a new job and escrows the reward. Returns the new job ID.
     fn create_job(ref self: TContractState, asset_cid_part1: felt252, asset_cid_part2: felt252, reward_amount: u256, deadline_timestamp: u64) -> felt252;
     // Allows a worker to submit a result.
-    fn submit_result(ref self: TContractState, job_id: felt252, result_cid: felt252);
+    fn submit_result(ref self: TContractState, job_id: felt252, result_cid_part1: felt252, result_cid_part2: felt252);
     // Finalizes a job and pays the reward to the worker.
     fn finalize_job(ref self: TContractState, job_id: felt252);
     // Getter functions to read job details.
@@ -34,12 +35,14 @@ mod JobRegistry {
     use starknet::{get_caller_address, get_contract_address, get_block_timestamp, ContractAddress};
     use starknet::syscalls::call_contract_syscall;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess, StoragePointerReadAccess};
+    use core::num::traits::Zero;
     use super::{IJobRegistry};
     // use core::integer::u256_safe_add;
 
     // Storage struct containing all the contract's state variables.
     #[storage]
     struct Storage {
+        owner: ContractAddress,
         job_asset_cid_part1: Map<felt252, felt252>,
         job_asset_cid_part2: Map<felt252, felt252>,
         job_reward: Map<felt252, u256>,
@@ -51,14 +54,22 @@ mod JobRegistry {
         reward_token_address: felt252,
     }
 
+    #[constructor]
+    fn constructor(ref self: ContractState, _owner: ContractAddress, _reward_token_address: felt252) {
+        // validation to check if owner is valid address and NOT 0 address
+        assert(!self.is_zero_address(_owner), 'Owner cannot be 0 address');
+        self.owner.write(_owner);
+        self.reward_token_address.write(_reward_token_address);
+    }
+
     // Implementation of the IJobRegistry interface.
     #[abi(embed_v0)]
     impl JobRegistryImpl of IJobRegistry<ContractState> {
         // Initializes the contract with the ERC20 token address.
-        fn initialize_token_address(ref self: ContractState, token_address: felt252) {
-            assert(self.reward_token_address.read() == 0, 'Token address already set');
-            self.reward_token_address.write(token_address);
-        }
+        // fn initialize_token_address(ref self: ContractState, token_address: felt252) {
+        //     assert(self.reward_token_address.read() == 0, 'Token address already set');
+        //     self.reward_token_address.write(token_address);
+        // }
 
         // Creates a new job, taking in the job details and transferring the reward.
         fn create_job(
@@ -99,7 +110,7 @@ mod JobRegistry {
         }
 
         // Allows a worker to submit their result.
-        fn submit_result(ref self: ContractState, job_id: felt252, result_cid: felt252) {
+        fn submit_result(ref self: ContractState, job_id: felt252, result_cid_part1: felt252, result_cid_part2: felt252) {
             let caller: felt252 = get_caller_address().into();
             let creator = self.job_creator.read(job_id);
             assert(creator != 0, 'Job does not exist');
@@ -108,7 +119,8 @@ mod JobRegistry {
             
             // Assign the worker and store the result.
             self.job_worker.write(job_id, caller);
-            self.job_result_cid.write(job_id, result_cid);
+            self.job_result_cid.write(job_id, result_cid_part1);
+            self.job_result_cid.write(job_id, result_cid_part2);
         }
 
         // Finalizes a job and pays the reward.
@@ -163,6 +175,28 @@ mod JobRegistry {
 
         fn get_job_asset_cid(self: @ContractState, job_id: felt252) -> (felt252, felt252) {
             (self.job_asset_cid_part1.read(job_id), self.job_asset_cid_part2.read(job_id))
+        }
+    }
+
+    #[generate_trait]
+    impl Private of PrivateTrait {
+        fn only_owner(self: @ContractState) {
+            // get function caller
+            let caller: ContractAddress = get_caller_address();
+
+            // get owner of contract
+            let current_owner: ContractAddress = self.owner.read();
+
+            // assertion logic
+            assert(caller == current_owner, 'caller not owner');
+        }
+
+
+        fn is_zero_address(self: @ContractState, account: ContractAddress) -> bool {
+            if account.is_zero() {
+                return true;
+            }
+            return false;
         }
     }
 }
