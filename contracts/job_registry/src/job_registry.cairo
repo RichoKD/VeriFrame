@@ -1,77 +1,133 @@
-
-// Only keep imports that are actually used at the module level
-// use starknet::ContractAddress;
-
-// Interface for the ERC20 token, needed for reward transfers.
-#[starknet::interface]
-pub trait IERC20<TContractState> {
-    fn transfer(ref self: TContractState, recipient: felt252, amount: u256);
-    fn transfer_from(ref self: TContractState, sender: felt252, recipient: felt252, amount: u256);
-}
+// VeriFrame Job Registry with OpenZeppelin Integration
+use starknet::ContractAddress;
 
 // Interface representing the Job Registry contract.
-/// This interface allows for the creation, management, and finalization of jobs.
 #[starknet::interface]
 pub trait IJobRegistry<TContractState> {
-    // Initializes the contract by setting the ERC20 token address.
-    // fn initialize_token_address(ref self: TContractState, token_address: felt252);
     // Creates a new job and escrows the reward. Returns the new job ID.
     fn create_job(ref self: TContractState, asset_cid_part1: felt252, asset_cid_part2: felt252, reward_amount: u256, deadline_timestamp: u64) -> felt252;
     // Allows a worker to submit a result.
     fn submit_result(ref self: TContractState, job_id: felt252, result_cid_part1: felt252, result_cid_part2: felt252);
     // Finalizes a job and pays the reward to the worker.
     fn finalize_job(ref self: TContractState, job_id: felt252);
-    // Getter functions to read job details.
+    // Emergency pause functionality
+    fn pause(ref self: TContractState);
+    fn unpause(ref self: TContractState);
+    // Getter functions
     fn get_job_counter(self: @TContractState) -> felt252;
-    fn get_job_creator(self: @TContractState, job_id: felt252) -> felt252;
-    fn get_job_worker(self: @TContractState, job_id: felt252) -> felt252;
+    fn get_job_creator(self: @TContractState, job_id: felt252) -> ContractAddress;
+    fn get_job_worker(self: @TContractState, job_id: felt252) -> ContractAddress;
     fn get_job_reward(self: @TContractState, job_id: felt252) -> u256;
     fn get_job_asset_cid(self: @TContractState, job_id: felt252) -> (felt252, felt252);
+    fn get_job_deadline(self: @TContractState, job_id: felt252) -> u64;
+    fn is_job_completed(self: @TContractState, job_id: felt252) -> bool;
 }
 
-// The main contract module.
 #[starknet::contract]
 mod JobRegistry {
-    use starknet::{get_caller_address, get_contract_address, get_block_timestamp, ContractAddress};
-    use starknet::syscalls::call_contract_syscall;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess, StoragePointerReadAccess};
-    use core::num::traits::Zero;
-    use super::{IJobRegistry};
-    // use core::integer::u256_safe_add;
+    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
-    // Storage struct containing all the contract's state variables.
+    use super::IJobRegistry;
+    use starknet::{get_caller_address, get_contract_address, get_block_timestamp, ContractAddress};
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess, StoragePointerReadAccess};
+    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
+    use openzeppelin_security::pausable::PausableComponent;
+    use core::num::traits::Zero;
+
+    // Components
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
+    component!(path: PausableComponent, storage: pausable, event: PausableEvent);
+
+    // Component implementations
+    #[abi(embed_v0)]
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
+    impl ReentrancyGuardInternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
+
+    #[abi(embed_v0)]
+    impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
+    impl PausableInternalImpl = PausableComponent::InternalImpl<ContractState>;
+
     #[storage]
     struct Storage {
-        owner: ContractAddress,
+        // OpenZeppelin components
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
+        #[substorage(v0)]
+        reentrancy_guard: ReentrancyGuardComponent::Storage,
+        #[substorage(v0)]
+        pausable: PausableComponent::Storage,
+
+        // Job registry specific storage
+        reward_token_address: ContractAddress,
+        job_counter: felt252,
         job_asset_cid_part1: Map<felt252, felt252>,
         job_asset_cid_part2: Map<felt252, felt252>,
         job_reward: Map<felt252, u256>,
-        job_creator: Map<felt252, felt252>,
+        job_creator: Map<felt252, ContractAddress>,
         job_deadline: Map<felt252, u64>,
-        job_worker: Map<felt252, felt252>,
-        job_result_cid: Map<felt252, felt252>,
-        job_counter: felt252,
-        reward_token_address: felt252,
+        job_worker: Map<felt252, ContractAddress>,
+        job_result_cid_part1: Map<felt252, felt252>,
+        job_result_cid_part2: Map<felt252, felt252>,
+        job_completed: Map<felt252, bool>,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event,
+        #[flat]
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event,
+        #[flat]
+        PausableEvent: PausableComponent::Event,
+
+        JobCreated: JobCreated,
+        ResultSubmitted: ResultSubmitted,
+        JobFinalized: JobFinalized,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct JobCreated {
+        #[key]
+        job_id: felt252,
+        #[key]
+        creator: ContractAddress,
+        reward_amount: u256,
+        deadline: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ResultSubmitted {
+        #[key]
+        job_id: felt252,
+        #[key]
+        worker: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct JobFinalized {
+        #[key]
+        job_id: felt252,
+        #[key]
+        worker: ContractAddress,
+        reward_amount: u256,
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, _owner: ContractAddress, _reward_token_address: felt252) {
-        // validation to check if owner is valid address and NOT 0 address
-        assert(!self.is_zero_address(_owner), 'Owner cannot be 0 address');
-        self.owner.write(_owner);
-        self.reward_token_address.write(_reward_token_address);
+    fn constructor(ref self: ContractState, owner: ContractAddress, reward_token_address: ContractAddress) {
+        // Initialize OpenZeppelin components
+        self.ownable.initializer(owner);
+        
+        // Initialize contract-specific state
+        self.reward_token_address.write(reward_token_address);
     }
 
-    // Implementation of the IJobRegistry interface.
     #[abi(embed_v0)]
     impl JobRegistryImpl of IJobRegistry<ContractState> {
-        // Initializes the contract with the ERC20 token address.
-        // fn initialize_token_address(ref self: ContractState, token_address: felt252) {
-        //     assert(self.reward_token_address.read() == 0, 'Token address already set');
-        //     self.reward_token_address.write(token_address);
-        // }
-
-        // Creates a new job, taking in the job details and transferring the reward.
         fn create_job(
             ref self: ContractState,
             asset_cid_part1: felt252,
@@ -79,93 +135,118 @@ mod JobRegistry {
             reward_amount: u256,
             deadline_timestamp: u64
         ) -> felt252 {
-            let caller: felt252 = get_caller_address().into();
+            // Security checks
+            self.pausable.assert_not_paused();
+            self.reentrancy_guard.start();
             
-            // Get the current job ID and increment it for the new job.
+            let caller = get_caller_address();
+            assert(!caller.is_zero(), 'Caller cannot be zero');
+            assert(reward_amount > 0, 'Reward must be positive');
+            assert(deadline_timestamp > get_block_timestamp(), 'Deadline must be in future');
+            
+            // Get the current job ID and increment it
             let job_id = self.job_counter.read() + 1;
             self.job_counter.write(job_id);
 
-            // Escrow the reward from the creator. Assumes creator has approved this contract.
-            let token_address = self.reward_token_address.read();
-            assert(token_address != 0, 'Token address not set');
-            let contract_address: ContractAddress = token_address.try_into().unwrap();
-            let mut calldata: Array<felt252> = ArrayTrait::new();
-            calldata.append(caller);
-            calldata.append(get_contract_address().into());
-            calldata.append(reward_amount.low.into());
-            calldata.append(reward_amount.high.into());
-            let call_result = call_contract_syscall(contract_address, selector!("transferFrom"), calldata.span());
-            let result = call_result.expect('TransferFrom call failed');
-            assert(result.len() == 1, 'TransferFrom failed');
-            assert(*result.at(0) == 1, 'TransferFrom failed');
+            // Transfer tokens from creator to this contract (escrow)
+            let token = IERC20Dispatcher { contract_address: self.reward_token_address.read() };
+            token.transfer_from(caller, get_contract_address(), reward_amount);
 
-            // Store the job details.
+            // Store job details
             self.job_creator.write(job_id, caller);
             self.job_asset_cid_part1.write(job_id, asset_cid_part1);
             self.job_asset_cid_part2.write(job_id, asset_cid_part2);
             self.job_reward.write(job_id, reward_amount);
             self.job_deadline.write(job_id, deadline_timestamp);
 
+            // Emit event
+            self.emit(JobCreated {
+                job_id,
+                creator: caller,
+                reward_amount,
+                deadline: deadline_timestamp,
+            });
+
+            self.reentrancy_guard.end();
             job_id
         }
 
-        // Allows a worker to submit their result.
         fn submit_result(ref self: ContractState, job_id: felt252, result_cid_part1: felt252, result_cid_part2: felt252) {
-            let caller: felt252 = get_caller_address().into();
-            let creator = self.job_creator.read(job_id);
-            assert(creator != 0, 'Job does not exist');
-            assert(caller != creator, 'Creator cannot be the worker');
-            assert(self.job_worker.read(job_id) == 0, 'Job already has a worker');
+            // Security checks
+            self.pausable.assert_not_paused();
             
-            // Assign the worker and store the result.
+            let caller = get_caller_address();
+            let creator = self.job_creator.read(job_id);
+            
+            assert(!creator.is_zero(), 'Job does not exist');
+            assert(caller != creator, 'Creator cannot be worker');
+            assert(self.job_worker.read(job_id).is_zero(), 'Job already has worker');
+            assert(!self.job_completed.read(job_id), 'Job already completed');
+            
+            // Assign worker and store result
             self.job_worker.write(job_id, caller);
-            self.job_result_cid.write(job_id, result_cid_part1);
-            self.job_result_cid.write(job_id, result_cid_part2);
+            self.job_result_cid_part1.write(job_id, result_cid_part1);
+            self.job_result_cid_part2.write(job_id, result_cid_part2);
+
+            // Emit event
+            self.emit(ResultSubmitted {
+                job_id,
+                worker: caller,
+            });
         }
 
-        // Finalizes a job and pays the reward.
         fn finalize_job(ref self: ContractState, job_id: felt252) {
-            let block_timestamp = get_block_timestamp();
-            let deadline = self.job_deadline.read(job_id);
-            assert(block_timestamp >= deadline, 'Deadline has not passed');
+            // Security checks
+            self.pausable.assert_not_paused();
+            self.reentrancy_guard.start();
             
+            let current_time = get_block_timestamp();
+            let deadline = self.job_deadline.read(job_id);
             let worker = self.job_worker.read(job_id);
-            assert(worker != 0, 'No worker submitted a result');
+            
+            assert(current_time >= deadline, 'Deadline not reached');
+            assert(!worker.is_zero(), 'No worker assigned');
+            assert(!self.job_completed.read(job_id), 'Job already completed');
 
             let reward = self.job_reward.read(job_id);
-            let token_address = self.reward_token_address.read();
+            
+            // Transfer reward to worker
+            let token = IERC20Dispatcher { contract_address: self.reward_token_address.read() };
+            token.transfer(worker, reward);
 
-            // Transfer the reward from the contract to the worker.
-            let contract_address: ContractAddress = token_address.try_into().unwrap();
-            let mut calldata: Array<felt252> = ArrayTrait::new();
-            calldata.append(worker);
-            calldata.append(reward.low.into());
-            calldata.append(reward.high.into());
-            let result = call_contract_syscall(contract_address, selector!("transfer"), calldata.span()).expect('Transfer call failed');
-            assert(result.len() == 1, 'Transfer failed');
-            assert(*result.at(0) == 1, 'Transfer failed');
+            // Mark job as completed
+            self.job_completed.write(job_id, true);
 
-            // Clear storage variables to mark the job as complete.
-            self.job_creator.write(job_id, 0);
-            self.job_worker.write(job_id, 0);
-            self.job_asset_cid_part1.write(job_id, 0);
-            self.job_asset_cid_part2.write(job_id, 0);
-            self.job_result_cid.write(job_id, 0);
-            self.job_deadline.write(job_id, 0);
-            self.job_reward.write(job_id, u256 { low: 0, high: 0 });
+            // Emit event
+            self.emit(JobFinalized {
+                job_id,
+                worker,
+                reward_amount: reward,
+            });
+
+            self.reentrancy_guard.end();
         }
-        
-        // --- Getter Functions ---
-        
+
+        fn pause(ref self: ContractState) {
+            self.ownable.assert_only_owner();
+            self.pausable.pause();
+        }
+
+        fn unpause(ref self: ContractState) {
+            self.ownable.assert_only_owner();
+            self.pausable.unpause();
+        }
+
+        // Getter functions
         fn get_job_counter(self: @ContractState) -> felt252 {
             self.job_counter.read()
         }
         
-        fn get_job_creator(self: @ContractState, job_id: felt252) -> felt252 {
+        fn get_job_creator(self: @ContractState, job_id: felt252) -> ContractAddress {
             self.job_creator.read(job_id)
         }
 
-        fn get_job_worker(self: @ContractState, job_id: felt252) -> felt252 {
+        fn get_job_worker(self: @ContractState, job_id: felt252) -> ContractAddress {
             self.job_worker.read(job_id)
         }
 
@@ -176,27 +257,13 @@ mod JobRegistry {
         fn get_job_asset_cid(self: @ContractState, job_id: felt252) -> (felt252, felt252) {
             (self.job_asset_cid_part1.read(job_id), self.job_asset_cid_part2.read(job_id))
         }
-    }
 
-    #[generate_trait]
-    impl Private of PrivateTrait {
-        fn only_owner(self: @ContractState) {
-            // get function caller
-            let caller: ContractAddress = get_caller_address();
-
-            // get owner of contract
-            let current_owner: ContractAddress = self.owner.read();
-
-            // assertion logic
-            assert(caller == current_owner, 'caller not owner');
+        fn get_job_deadline(self: @ContractState, job_id: felt252) -> u64 {
+            self.job_deadline.read(job_id)
         }
 
-
-        fn is_zero_address(self: @ContractState, account: ContractAddress) -> bool {
-            if account.is_zero() {
-                return true;
-            }
-            return false;
+        fn is_job_completed(self: @ContractState, job_id: felt252) -> bool {
+            self.job_completed.read(job_id)
         }
     }
 }
