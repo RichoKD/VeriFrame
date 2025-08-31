@@ -7,10 +7,15 @@
 set -e
 
 # Default values
-NETWORK=${1:-"sepolia"}
-ACCOUNT=${2:-"stark1"}
+NETWORK=${1:-"dev_net"}
+ACCOUNT=${2:-"account-1"}
 BUILD_CONTRACT=${3:-false}
 TOKEN_ADDRESS=${4:-"0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"} # Sepolia STRK
+
+# echo "[INIT] Waiting for StarkNet Devnet..."
+# until curl -s $URL/is_alive > /dev/null; do
+#     sleep 2
+# done
 
 echo "🚀 Deploying Job Registry Contract..."
 echo "Network: $NETWORK"
@@ -72,10 +77,27 @@ else
     echo "Class Hash: $CLASS_HASH"
 fi
 
-# Deploy the contract (no constructor arguments needed)
-echo "🚀 Deploying contract..."
-DEPLOY_OUTPUT=$(sncast --profile $ACCOUNT deploy --class-hash $CLASS_HASH 2>&1)
+# Deploy the contract with constructor arguments
+echo "🚀 Deploying contract... $ACCOUNT : $CLASS_HASH"
 
+# Get the account address for the owner parameter
+ACCOUNT_LIST_OUTPUT=$(sncast account list 2>/dev/null)
+ACCOUNT_ADDRESS=$(echo "$ACCOUNT_LIST_OUTPUT" | grep -A 5 "^- $ACCOUNT:" | grep "address:" | grep -o "0x[a-fA-F0-9]*")
+
+if [ -z "$ACCOUNT_ADDRESS" ]; then
+    echo "❌ Could not get account address for $ACCOUNT"
+    echo "Available accounts:"
+    echo "$ACCOUNT_LIST_OUTPUT"
+    exit 1
+fi
+
+echo "📋 Constructor Parameters:"
+echo "  Owner Address: $ACCOUNT_ADDRESS"
+echo "  Token Address: $TOKEN_ADDRESS"
+
+# Deploy with constructor arguments: owner, reward_token_address
+DEPLOY_OUTPUT=$(sncast --profile $ACCOUNT deploy --class-hash $CLASS_HASH --constructor-calldata $ACCOUNT_ADDRESS $TOKEN_ADDRESS) #2>&1)
+echo "$DEPLOY_OUTPUT"
 if echo "$DEPLOY_OUTPUT" | grep -q "error"; then
     echo "❌ Contract deployment failed:"
     echo "$DEPLOY_OUTPUT"
