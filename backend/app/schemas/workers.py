@@ -42,8 +42,7 @@ class WorkerResponse(WorkerBase):
     active: bool = True
     last_seen: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 class ReputationHistoryResponse(BaseModel):
     """Schema for reputation history entries"""
@@ -58,5 +57,4 @@ class ReputationHistoryResponse(BaseModel):
     transaction_hash: Optional[str] = None
     timestamp: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}

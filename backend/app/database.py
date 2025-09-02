@@ -2,12 +2,14 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from app.config import settings
+from app.config import get_settings
+
+settings = get_settings()
 
 # Async database engine
 async_engine = create_async_engine(
     settings.database_url,
-    echo=settings.debug,
+    echo=False,  # Set to True for SQL debugging
     future=True
 )
 
@@ -29,6 +31,9 @@ async def get_db() -> AsyncSession:
             yield session
         finally:
             await session.close()
+
+# Alias for compatibility
+get_db_session = get_db
 
 
 async def init_db():

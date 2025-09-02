@@ -49,8 +49,7 @@ class JobResponse(JobBase):
     quality_score: Optional[int] = None
     status: str = "open"
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 class JobEventResponse(BaseModel):
     """Schema for job event responses"""
@@ -63,5 +62,4 @@ class JobEventResponse(BaseModel):
     actor_address: Optional[str] = None
     event_data: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}

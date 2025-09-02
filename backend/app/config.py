@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from typing import List
 import os
 
@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     start_block: int = 0
     indexer_poll_interval: int = 10  # seconds
     
+    # The Graph settings
+    use_graph: bool = False  # Use The Graph instead of direct indexing
+    graph_endpoint: str = "http://localhost:8000/subgraphs/name/veriframe/veriframe-subgraph"
+    
     # Redis settings
     redis_url: str = "redis://localhost:6379"
     
@@ -33,9 +37,23 @@ class Settings(BaseSettings):
     
     # Logging
     log_level: str = "INFO"
+    debug: bool = False
     
-    class Config:
-        env_file = ".env"
+    # Additional fields from existing .env (optional)
+    job_registry_contract_address: str = ""  # Legacy field
+    starknet_network: str = "dev_net"  # Legacy field
+    ipfs_api_url: str = "http://127.0.0.1:5001"
+    ipfs_gateway_url: str = "http://127.0.0.1:8080"
+    access_token_expire_minutes: int = 60
+    algorithm: str = "HS256"
+    event_polling_interval: int = 5
+    max_retries: int = 3
+    batch_size: int = 100
+    log_format: str = "json"
+    celery_broker_url: str = "redis://localhost:6379/1"
+    celery_result_backend: str = "redis://localhost:6379/2"
+    
+    model_config = {"env_file": ".env", "extra": "ignore"}
 
 # Global settings instance
 _settings = None

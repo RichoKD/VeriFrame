@@ -16,8 +16,7 @@ class ContractEventResponse(BaseModel):
     processed_at: Optional[datetime] = None
     timestamp: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 class EventSummary(BaseModel):
     """Schema for event summary statistics"""

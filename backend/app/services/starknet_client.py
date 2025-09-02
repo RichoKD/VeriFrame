@@ -3,7 +3,6 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
 from starknet_py.net.signer.stark_curve_signer import KeyPair
-from starknet_py.cairo.felt import Felt
 from app.config import get_settings
 import logging
 import json

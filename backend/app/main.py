@@ -36,6 +36,10 @@ app.include_router(workers.router, prefix="/api/v1/workers", tags=["workers"])
 app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["jobs"])
 app.include_router(events.router, prefix="/api/v1/events", tags=["events"])
 
+# Hybrid API endpoints (Graph + Database)
+from app.api import hybrid
+app.include_router(hybrid.router, prefix="/api/v1/hybrid", tags=["hybrid-graph"])
+
 # Global event indexer instance
 event_indexer = None
 
