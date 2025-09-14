@@ -4,6 +4,7 @@ import uvicorn
 from app.config import get_settings
 from app.database import get_db_session
 from app.api import workers, jobs, events
+from app.auth import routes as auth_routes
 from app.services.event_indexer import EventIndexer
 import asyncio
 import logging
@@ -32,6 +33,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth_routes.router, prefix="/api/v1/auth", tags=["authentication"])
 app.include_router(workers.router, prefix="/api/v1/workers", tags=["workers"])
 app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["jobs"])
 app.include_router(events.router, prefix="/api/v1/events", tags=["events"])

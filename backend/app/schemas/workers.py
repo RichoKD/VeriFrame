@@ -40,6 +40,7 @@ class WorkerResponse(WorkerBase):
     jobs_failed: int = 0
     total_earnings: int = 0
     active: bool = True
+    is_admin: bool = False
     last_seen: Optional[datetime] = None
 
     model_config = {"from_attributes": True}

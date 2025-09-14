@@ -12,6 +12,11 @@ from app.schemas.workers import (
     ReputationHistoryResponse
 )
 from app.services.starknet_client import get_starknet_client
+from app.auth.dependencies import (
+    require_authenticated_worker, 
+    require_admin_worker, 
+    get_optional_current_worker
+)
 import logging
 
 logger = logging.getLogger(__name__)
@@ -95,9 +100,17 @@ async def register_worker(
 async def update_worker(
     worker_address: str,
     updates: WorkerUpdate,
+    current_worker: Worker = Depends(require_authenticated_worker),
     db: AsyncSession = Depends(get_db_session)
 ):
-    """Update worker information"""
+    """Update worker information (only own profile or admin)"""
+    # Workers can only update their own profile, admins can update any
+    if current_worker.address != worker_address and not current_worker.is_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Can only update own worker profile"
+        )
+    
     query = select(Worker).where(Worker.address == worker_address)
     result = await db.execute(query)
     worker = result.scalar_one_or_none()
@@ -113,16 +126,16 @@ async def update_worker(
     await db.commit()
     await db.refresh(worker)
     
-    logger.info(f"Worker updated: {worker.address}")
+    logger.info(f"Worker updated: {worker.address} by {current_worker.address}")
     return worker
 
 @router.post("/{worker_address}/verify")
 async def verify_worker(
     worker_address: str,
-    verifier_address: str,
+    admin_worker: Worker = Depends(require_admin_worker),
     db: AsyncSession = Depends(get_db_session)
 ):
-    """Verify a worker (admin function)"""
+    """Verify a worker (admin only)"""
     query = select(Worker).where(Worker.address == worker_address)
     result = await db.execute(query)
     worker = result.scalar_one_or_none()
@@ -131,12 +144,12 @@ async def verify_worker(
         raise HTTPException(status_code=404, detail="Worker not found")
     
     worker.verified = True
-    worker.verified_by = verifier_address
+    worker.verified_by = admin_worker.address
     worker.verified_at = func.now()
     
     await db.commit()
     
-    logger.info(f"Worker verified: {worker.address} by {verifier_address}")
+    logger.info(f"Worker verified: {worker.address} by {admin_worker.address}")
     return {"message": "Worker verified successfully"}
 
 @router.get("/{worker_address}/reputation-history", response_model=List[ReputationHistoryResponse])

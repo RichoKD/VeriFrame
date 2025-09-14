@@ -1,4 +1,6 @@
-from starknet_py.net.client import Client
+# from starknet_py.net.client import Client
+from starknet_py.net.full_node_client import FullNodeClient
+
 from starknet_py.net.models import StarknetChainId
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
@@ -21,10 +23,13 @@ class StarkNetClient:
         """Initialize the StarkNet client and contract"""
         try:
             # Create client
-            self.client = Client(
-                node_url=self.settings.starknet_rpc_url,
-                chain=StarknetChainId.TESTNET if self.settings.network == "testnet" else StarknetChainId.MAINNET
-            )
+            self.client = FullNodeClient(node_url=self.settings.starknet_rpc_url)
+            # self.client = GatewayClient(self.settings.starknet_rpc_url)
+            # self.client = Client()
+            # self.client = Client(
+            #     node_url=self.settings.starknet_rpc_url,
+            #     chain=StarknetChainId.TESTNET if self.settings.network == "testnet" else StarknetChainId.MAINNET
+            # )
             
             # Load contract ABI
             with open(self.settings.contract_abi_path, 'r') as f:

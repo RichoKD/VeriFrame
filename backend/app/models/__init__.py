@@ -35,6 +35,7 @@ class Worker(Base):
     
     # Status
     active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)
     last_seen = Column(DateTime(timezone=True), nullable=True)
     
     # Relationships
