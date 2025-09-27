@@ -5,12 +5,18 @@ import os
 
 # Load environment variables before class definition
 load_dotenv(verbose=True)
-print("RPC: ",os.getenv("STARKNET_RPC_URL"))
+
+if os.getenv("ENV") is None:
+    os.environ["ENV"] = "development"
+    # print("RPC: ",os.getenv("STARKNET_RPC_URL"))
+    
+print("ENV: ",os.getenv("ENV"))
+
 
 class Settings(BaseSettings):
 
     # Database settings
-    database_url: str = "postgresql+asyncpg://user:password@localhost/veriframe"
+    database_url: str = os.getenv("DATABASE_URL") or "postgresql+asyncpg://user:password@localhost/veriframe"
     
     # StarkNet settings
     starknet_rpc_url: str = os.getenv("STARKNET_RPC_URL") or "http://localhost:5050"
@@ -18,15 +24,15 @@ class Settings(BaseSettings):
     contract_abi_path: str = "../contracts/job_registry/target/dev/veriframe_job_registry_JobRegistry.contract_class.json"
     # contract_abi_path: str = "./contracts/job_registry/target/dev/veriframe_job_registry.contract_class.json"
     
-    network: str = os.getenv("STARKNET_NETWORK") or "devnet"
+    network: str = os.getenv("STARKNET_NETWORK") or "dev_net" #"devnet"
     
     # Event indexing settings
-    enable_event_indexing: bool = True
-    start_block: int = 0
-    indexer_poll_interval: int = 10  # seconds
-    
+    enable_event_indexing: bool = os.getenv("ENABLE_EVENT_INDEXING")
+    start_block: int = os.getenv("START_BLOCK") or 0
+    indexer_poll_interval: int = os.getenv("INDEXER_POLL_INTERVAL") or 10
+
     # The Graph settings
-    use_graph: bool = False  # Use The Graph instead of direct indexing
+    use_graph: bool = not enable_event_indexing  # Use The Graph instead of direct indexing
     graph_endpoint: str = os.getenv("STARKNET_GRAPHQL_URL") or "http://localhost:8000/subgraphs/name/veriframe/veriframe-subgraph"
     # graph_endpoint: str = "http://localhost:8000/subgraphs/name/veriframe/veriframe-subgraph"
     
@@ -50,8 +56,8 @@ class Settings(BaseSettings):
     jwt_refresh_token_expire_days: int = os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS") or 7
 
     # Logging
-    log_level: str = "INFO"
-    debug: bool = False
+    log_level: str = os.getenv("LOG_LEVEL") or "INFO"
+    debug: bool = os.getenv("DEBUG")
     
     # Additional fields from existing .env (optional)
     # job_registry_contract_address: str = ""  # Legacy field

@@ -33,7 +33,10 @@ class StarkNetClient:
             
             # Load contract ABI
             with open(self.settings.contract_abi_path, 'r') as f:
-                contract_abi = json.load(f)
+                contract_class = json.load(f)
+            
+            # Extract ABI from contract class
+            contract_abi = contract_class.get('abi', contract_class)
             
             # Create contract instance
             self.contract = Contract(
