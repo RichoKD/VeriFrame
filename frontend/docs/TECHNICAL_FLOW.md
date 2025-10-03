@@ -4,7 +4,7 @@ This document provides a detailed technical explanation of how data flows throug
 
 ## Project Overview
 
-**StarkRender** is a decentralized work platform built on Starknet where Creators post jobs, Nodes deliver excellence, and AI ensures quality. The frontend is a modern Next.js 15 application with React 19, styled with Tailwind CSS.
+**StarkRender** is a decentralized work platform built on Starknet where Creators post jobs and Nodes deliver excellence. The frontend is a modern Next.js 15 application with React 19, styled with Tailwind CSS.
 
 ## Component Hierarchy and Data Flow
 
@@ -448,7 +448,7 @@ try {
 
 ### Recent Updates (Frontend Branch)
 
-- ✅ **Project renamed** from template to "StarkRender"
+- ✅ **Project setup** with "StarkRender" branding and structure
 - ✅ **Metadata updated** with StarkRender branding and description
 - ✅ **Dark theme** applied by default
 - ✅ **StarkRender content** in all components (HeroSection, Footer, etc.)

@@ -1,5 +1,12 @@
 "use client";
-import { Clock, Users, Briefcase, Shield, CheckCircle, ArrowRight } from "lucide-react";
+import {
+  Clock,
+  Users,
+  Briefcase,
+  Shield,
+  CheckCircle,
+  ArrowRight,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -17,13 +24,15 @@ const BentoGrid = () => {
         />
         <div className="absolute inset-0 bg-slate-900/60" />
       </div>
-      
+
       <div className="container max-w-7xl mx-auto relative z-10">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-6 lg:grid-cols-12">
           <div className="relative h-60 overflow-hidden rounded-3xl md:col-span-2 md:row-span-2 md:h-[400px] lg:col-span-4 lg:h-full bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border border-blue-500/30">
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
             <div className="absolute bottom-6 left-6 z-10 text-white">
-              <h3 className="text-lg font-semibold">Decentralized Job Platform.</h3>
+              <h3 className="text-lg font-semibold">
+                Decentralized Job Platform.
+              </h3>
             </div>
             <div className="absolute right-6 top-6 z-10">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/30 backdrop-blur-sm">
@@ -67,7 +76,9 @@ const BentoGrid = () => {
               <Users className="h-16 w-16 text-blue-400 opacity-60" />
             </div>
             <div className="absolute bottom-4 left-4 z-10">
-              <p className="text-sm text-blue-300 font-medium">Active Community</p>
+              <p className="text-sm text-blue-300 font-medium">
+                Active Community
+              </p>
             </div>
           </div>
 
@@ -78,7 +89,9 @@ const BentoGrid = () => {
                   <div className="text-4xl font-normal md:text-5xl lg:text-6xl text-cyan-300">
                     $0
                   </div>
-                  <div className="text-slate-400">Platform fee for creators</div>
+                  <div className="text-slate-400">
+                    Platform fee for creators
+                  </div>
                   <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-none">
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -107,7 +120,9 @@ const BentoGrid = () => {
                     className="border-slate-600 h-8 w-8 border-2 md:h-8 md:w-8 lg:h-10 lg:w-10"
                   >
                     <AvatarImage src={`/images/block/avatar-${i + 1}.webp`} />
-                    <AvatarFallback className="bg-slate-700 text-slate-300">W{i}</AvatarFallback>
+                    <AvatarFallback className="bg-slate-700 text-slate-300">
+                      W{i}
+                    </AvatarFallback>
                   </Avatar>
                 ))}
               </div>

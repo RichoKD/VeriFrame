@@ -7,7 +7,7 @@ This is the frontend for [StarkRender](https://starkrender.com) - a decentralize
 StarkRender is a revolutionary platform that connects creators with skilled nodes in a decentralized ecosystem. Built on Starknet, it provides:
 
 - **For Creators**: Post jobs, manage submissions, and release rewards with confidence
-- **For Nodes**: Find jobs, submit quality work, and earn rewards in crypto  
+- **For Nodes**: Find jobs, submit quality work, and earn rewards in crypto
 - **For Admins**: Oversee the ecosystem, resolve disputes, and ensure fairness## Project Overview
 
 StarkRender Frontend is a Next.js 15 application with React 19 that provides a modern, responsive user interface for the decentralized work platform. The application features a cosmic dark theme design and seamless integration with Starknet blockchain technology.
@@ -281,7 +281,7 @@ export function MyComponent({ className, ...props }: ComponentProps) {
 
 ## Project Status
 
-- ✅ **StarkRender Branding**: Complete rebrand from template
+- ✅ **StarkRender Branding**: Custom platform design and messaging
 - ✅ **Dark Theme**: Cosmic design system implemented
 - ✅ **Component Library**: Comprehensive UI components available
 - ✅ **Responsive Design**: Mobile-first approach
