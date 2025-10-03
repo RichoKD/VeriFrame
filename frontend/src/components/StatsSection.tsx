@@ -46,7 +46,7 @@ const StatsSection = () => {
 
         <div className="relative mx-auto mt-24 flex h-112 max-w-5xl items-center justify-center gap-6">
           {[
-            { value: 1250, label: "Active Workers", delay: 0.2, icon: Users },
+            { value: 1250, label: "Active Nodes", delay: 0.2, icon: Users },
             { value: 89, label: "Success Rate", delay: 0.4, icon: Shield },
             {
               value: 3400,

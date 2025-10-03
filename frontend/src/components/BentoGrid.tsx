@@ -55,7 +55,7 @@ const BentoGrid = () => {
                 </span>
               </div>
               <p className="text-sm leading-tight md:text-sm text-slate-300">
-                Worker satisfaction rate
+                Node satisfaction rate
                 <br />
                 on our platform
               </p>
@@ -98,7 +98,7 @@ const BentoGrid = () => {
                 </span>
               </div>
               <p className="mb-4 ml-0 text-sm md:text-sm text-slate-400">
-                Active workers worldwide
+                Active nodes worldwide
               </p>
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4, 5].map((i) => (

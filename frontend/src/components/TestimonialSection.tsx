@@ -23,7 +23,7 @@ const testimonials1 = [
   },
   {
     name: "Sarah Kim",
-    role: "Worker",
+    role: "Node",
     avatar:
       "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-2.webp",
     content:
@@ -47,7 +47,7 @@ const testimonials1 = [
   },
   {
     name: "Jordan Lee",
-    role: "Worker",
+    role: "Node",
     avatar:
       "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-5.webp",
     content:
@@ -73,7 +73,7 @@ const testimonials2 = [
   },
   {
     name: "Carlos Ruiz",
-    role: "Worker",
+    role: "Node",
     avatar:
       "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-2.webp",
     content:
@@ -97,7 +97,7 @@ const testimonials2 = [
   },
   {
     name: "Maya Patel",
-    role: "Worker",
+    role: "Node",
     avatar:
       "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-5.webp",
     content:
@@ -133,7 +133,7 @@ const TestimonialSection = () => {
       <div className="container flex flex-col items-center gap-6">
         <h2 className="mb-2 ">Trusted by StarkRender Community</h2>
         <p className="text-center ">
-          Decentralized work platform where Creators, Workers, and Admins thrive
+          Decentralized work platform where Creators, Nodes, and Admins thrive
           together.
         </p>
       </div>

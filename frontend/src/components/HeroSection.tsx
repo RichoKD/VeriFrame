@@ -8,7 +8,7 @@ import Image from "next/image";
 
 const menuItems = [
   { name: "For Creators", href: "#" },
-  { name: "For Workers", href: "#" },
+  { name: "For Nodes", href: "#" },
   { name: "For Admins", href: "#" },
   { name: "About", href: "#" },
 ];
@@ -105,7 +105,7 @@ export default function HeroSection() {
                 Verified Results
               </h2>
               <p className="mx-auto my-8 max-w-2xl text-lg text-slate-300 leading-relaxed">
-                Where Creators post jobs, Workers deliver excellence, and AI
+                Where Creators post jobs, Nodes deliver excellence, and AI
                 ensures quality. Join the future of verified work on Starknet.
               </p>
 
@@ -149,7 +149,7 @@ export default function HeroSection() {
                     <span className="text-xl font-bold text-white">W</span>
                   </div>
                   <h3 className="text-xl font-semibold text-slate-200 mb-3">
-                    For Workers
+                    For Nodes
                   </h3>
                   <p className="text-slate-400 text-sm">
                     Find jobs, submit quality work, and earn rewards in crypto.

@@ -13,7 +13,7 @@ const navigation = [
   {
     title: "Platform",
     links: [
-      { name: "Workers", href: "#" },
+      { name: "Nodes", href: "#" },
       { name: "Creators", href: "#" },
       { name: "Admins", href: "#" },
       { name: "Browse Jobs", href: "#" },
@@ -66,7 +66,7 @@ const FooterSection = () => {
                 </span>
               </h2>
               <p className="mt-4 max-w-[600px] text-lg text-slate-300">
-                Connect with thousands of creators and workers building the
+                Connect with thousands of creators and nodes building the
                 future of decentralized work.
               </p>
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
