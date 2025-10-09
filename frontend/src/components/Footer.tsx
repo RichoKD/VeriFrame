@@ -76,7 +76,7 @@ const FooterSection = () => {
                   size="lg"
                   className="group bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 border-0 shadow-lg"
                 >
-                  <a href="/get-started" className="flex items-center gap-2">
+                  <a href="/dashboard" className="flex items-center gap-2">
                     Connect Wallet to Start
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </a>

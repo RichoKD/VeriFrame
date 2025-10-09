@@ -66,7 +66,7 @@ export default function HeroSection() {
                     size="sm"
                     className="bg-blue-600 hover:bg-cyan-500 text-white"
                   >
-                    <Link href="#">
+                    <Link href="/dashboard">
                       <span>Connect Wallet</span>
                     </Link>
                   </Button>
@@ -114,7 +114,7 @@ export default function HeroSection() {
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
                 >
-                  <Link href="#">
+                  <Link href="/dashboard">
                     <span className="text-lg font-medium">Connect Wallet</span>
                   </Link>
                 </Button>
