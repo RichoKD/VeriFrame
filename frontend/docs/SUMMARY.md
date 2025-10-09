@@ -12,6 +12,7 @@ Purpose: a compact reference for developers — quick start, the reusable BaseLa
 ## Project layout (relevant parts)
 
 - `src/components/BaseLayout.tsx` — reusable dashboard layout (background, gradients, header, content wrapper)
+
 # StarkRender Frontend — One‑Page Summary
 
 Purpose: a compact reference for developers — quick start, the reusable BaseLayout contract, dashboard routes, common UI patterns, and fast troubleshooting.
@@ -55,8 +56,8 @@ Props (essentials):
 Gradient mapping (pick by role):
 
 - Creator → `blue` (blue → cyan)
-- Node    → `cyan` (cyan → purple)
-- Admin   → `purple` (purple → blue)
+- Node → `cyan` (cyan → purple)
+- Admin → `purple` (purple → blue)
 - Success → `green`
 
 Quick usage:
@@ -69,9 +70,7 @@ import BaseLayout from "@/components/BaseLayout";
 export default function Page() {
   return (
     <BaseLayout title="My Page" subtitle="Short desc" gradientVariant="blue">
-      <div className="container mx-auto px-6 py-8">
-        {/* your content */}
-      </div>
+      <div className="container mx-auto px-6 py-8">{/* your content */}</div>
     </BaseLayout>
   );
 }
@@ -97,19 +96,25 @@ Container example:
 Card example:
 
 ```tsx
-<Card className="bg-zinc-900/80 border-zinc-800 p-6 backdrop-blur-sm">{/* content */}</Card>
+<Card className="bg-zinc-900/80 border-zinc-800 p-6 backdrop-blur-sm">
+  {/* content */}
+</Card>
 ```
 
 Stats grid:
 
 ```tsx
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{/* stats */}</div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  {/* stats */}
+</div>
 ```
 
 Content grid:
 
 ```tsx
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{/* content */}</div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {/* content */}
+</div>
 ```
 
 Action button (gradient):
@@ -152,4 +157,5 @@ Ensure Connect Wallet CTAs link to `/dashboard` so users pick role first.
 File pointers: for details see the original docs in this folder (`BASELAYOUT_GUIDE.md`, `BASELAYOUT_ARCHITECTURE.md`, `DASHBOARD_PAGES.md`, `DASHBOARDS_READY.md`, `TECHNICAL_FLOW.md`).
 
 Keep this file as the “first read” for new frontend contributors.
+
 - [ ] Import `BaseLayout` and wrap your content
