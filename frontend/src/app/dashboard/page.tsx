@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,25 +11,51 @@ import {
   ArrowRight,
   Sparkles,
   Check,
+  Loader2,
 } from "lucide-react";
-
-type UserRole = "creator" | "node" | "admin" | null;
+import { useAuth, type UserRole } from "@/contexts/AuthContext";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<UserRole>(null);
+  const {
+    user,
+    role,
+    setRole,
+    isAuthenticated,
+    isLoading: authLoading,
+  } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<UserRole>(role);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRoleSelection = async (role: UserRole) => {
-    setSelectedRole(role);
+  // Redirect if already has a role
+  useEffect(() => {
+    if (isAuthenticated && role) {
+      switch (role) {
+        case "creator":
+          router.push("/dashboard/creators");
+          break;
+        case "node":
+          router.push("/dashboard/nodes");
+          break;
+        case "admin":
+          router.push("/dashboard/admin");
+          break;
+      }
+    }
+  }, [isAuthenticated, role, router]);
+
+  const handleRoleSelection = async (newRole: UserRole) => {
+    setSelectedRole(newRole);
   };
 
   const handleContinue = async () => {
     if (!selectedRole) return;
 
     setIsLoading(true);
-    // Simulate API call to save user role
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Save role to auth context
+    setRole(selectedRole);
 
     // Navigate to role-specific dashboard
     switch (selectedRole) {
@@ -44,6 +70,40 @@ export default function DashboardPage() {
         break;
     }
   };
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
+          <p className="text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show connect wallet if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full bg-zinc-900/80 border-zinc-800 p-8 text-center backdrop-blur-sm">
+          <Shield className="w-16 h-16 mx-auto mb-4 text-blue-500" />
+          <h2 className="text-2xl font-bold text-slate-200 mb-4">
+            Connect Your Wallet
+          </h2>
+          <p className="text-slate-400 mb-6">
+            To access the dashboard, please connect your Starknet wallet first.
+          </p>
+          <WalletConnectButton
+            size="lg"
+            className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
+            redirectTo="/dashboard"
+          />
+        </Card>
+      </div>
+    );
+  }
 
   const roles = [
     {
@@ -78,7 +138,14 @@ export default function DashboardPage() {
       borderColor: "border-cyan-500/50",
       iconBg: "bg-gradient-to-r from-cyan-500 to-purple-500",
     },
-    {
+  ];
+
+  // Check if user is admin (controlled access)
+  const isAdmin = user?.is_admin || false;
+
+  // Add admin role only for authorized users
+  if (isAdmin) {
+    roles.push({
       id: "admin" as UserRole,
       title: "Admin",
       icon: Shield,
@@ -93,8 +160,8 @@ export default function DashboardPage() {
       hoverGradient: "hover:from-purple-600 hover:to-blue-600",
       borderColor: "border-purple-500/50",
       iconBg: "bg-gradient-to-r from-purple-500 to-blue-500",
-    },
-  ];
+    });
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 relative overflow-hidden">
