@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, Triangle, X } from "lucide-react";
 import Image from "next/image";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 const menuItems = [
   { name: "For Creators", href: "#" },
@@ -61,15 +62,11 @@ export default function HeroSection() {
                 </div>
 
                 <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit lg:border-l lg:border-zinc-700 lg:pl-6">
-                  <Button
-                    asChild
+                  <WalletConnectButton
                     size="sm"
                     className="bg-blue-600 hover:bg-cyan-500 text-white"
-                  >
-                    <Link href="#">
-                      <span>Connect Wallet</span>
-                    </Link>
-                  </Button>
+                    redirectTo="/dashboard"
+                  />
                 </div>
               </div>
             </div>
@@ -110,14 +107,11 @@ export default function HeroSection() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
-                <Button
+                <WalletConnectButton
                   size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
-                >
-                  <Link href="#">
-                    <span className="text-lg font-medium">Connect Wallet</span>
-                  </Link>
-                </Button>
+                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300 text-lg font-medium"
+                  redirectTo="/dashboard"
+                />
                 <Button
                   size="lg"
                   variant="outline"

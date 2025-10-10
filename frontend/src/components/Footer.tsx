@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowRight,
   Facebook,
@@ -8,6 +10,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 const navigation = [
   {
@@ -70,17 +73,13 @@ const FooterSection = () => {
                 of decentralized work.
               </p>
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <Button
-                  asChild
-                  variant="secondary"
+                <WalletConnectButton
+                  variant="default"
                   size="lg"
                   className="group bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 border-0 shadow-lg"
-                >
-                  <a href="/get-started" className="flex items-center gap-2">
-                    Connect Wallet to Start
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </a>
-                </Button>
+                  redirectTo="/dashboard"
+                  showIcon={false}
+                />
               </div>
             </div>
           </div>
