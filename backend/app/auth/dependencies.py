@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional
 from app.database import get_db_session
-from app.models import Worker
+from app.models import Worker, User
 from app.auth.jwt_handler import jwt_handler
 import logging
 
@@ -61,6 +61,46 @@ async def get_current_worker(
         return None
 
 
+async def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: AsyncSession = Depends(get_db_session)
+) -> Optional[User]:
+    """Get current authenticated user from JWT token."""
+    if not credentials:
+        return None
+    
+    try:
+        # Verify the JWT token
+        payload = jwt_handler.verify_token(credentials.credentials)
+        if payload is None:
+            return None
+        
+        # Extract user address from token
+        user_address = payload.get("sub")
+        if user_address is None:
+            return None
+        
+        # Get user from database
+        query = select(User).where(User.address == user_address)
+        result = await db.execute(query)
+        user = result.scalar_one_or_none()
+        
+        if user is None:
+            logger.warning(f"User not found in database: {user_address}")
+            return None
+        
+        # Check if user is still active
+        if not user.active:
+            logger.warning(f"Inactive user attempted access: {user_address}")
+            return None
+            
+        return user
+        
+    except Exception as e:
+        logger.error(f"Error in get_current_user: {e}")
+        return None
+
+
 async def require_authenticated_worker(
     current_worker: Optional[Worker] = Depends(get_current_worker)
 ) -> Worker:
@@ -72,6 +112,19 @@ async def require_authenticated_worker(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return current_worker
+
+
+async def require_authenticated_user(
+    current_user: Optional[User] = Depends(get_current_user)
+) -> User:
+    """Require authenticated user (raises exception if not authenticated)."""
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return current_user
 
 
 async def require_verified_worker(

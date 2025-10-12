@@ -1,12 +1,13 @@
 """Pydantic schemas for authentication."""
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional, List, Union
 from app.schemas.workers import WorkerResponse
+from app.schemas.users import UserResponse
 
 
 class ChallengeRequest(BaseModel):
     """Request for authentication challenge."""
-    address: str = Field(..., description="StarkNet address of the worker")
+    address: str = Field(..., description="StarkNet address")
 
 
 class ChallengeResponse(BaseModel):
@@ -19,7 +20,7 @@ class ChallengeResponse(BaseModel):
 
 class AuthRequest(BaseModel):
     """Request for authentication with signed challenge."""
-    address: str = Field(..., description="StarkNet address of the worker")
+    address: str = Field(..., description="StarkNet address")
     message: str = Field(..., description="Original challenge message")
     signature: List[str] = Field(..., description="Signature components")
     timestamp: int = Field(..., description="Challenge timestamp")
@@ -31,7 +32,8 @@ class AuthResponse(BaseModel):
     refresh_token: str = Field(..., description="JWT refresh token")
     token_type: str = Field(default="bearer", description="Token type")
     expires_in: int = Field(..., description="Token expiration time in seconds")
-    worker: WorkerResponse = Field(..., description="Authenticated worker information")
+    user: Optional[UserResponse] = Field(None, description="Authenticated user information")
+    worker: Optional[WorkerResponse] = Field(None, description="Authenticated worker information")
 
 
 class RefreshRequest(BaseModel):

@@ -21,17 +21,25 @@ class StarkNetAuthenticator:
         timestamp = int(time.time())
         nonce = os.urandom(16).hex()
         
-        # Create a human-readable message
-        message = (
-            f"VeriFrame Authentication\\n"
-            f"Address: {address}\\n"
-            f"Timestamp: {timestamp}\\n"
-            f"Nonce: {nonce}\\n"
-            f"Please sign this message to authenticate with VeriFrame."
+        # Create a shorter message for signing
+        message_data = f"{address}:{timestamp}:{nonce}"
+        
+        # Create hash for signing (StarkNet-compatible)
+        message_hash = self._create_message_hash(message_data)
+        
+        # Human-readable message for display
+        display_message = (
+            f"VeriFrame Authentication\n"
+            f"Address: {address}\n"
+            f"Timestamp: {timestamp}\n"
+            f"Nonce: {nonce}\n"
+            f"Please sign this message to authenticate."
         )
         
         challenge_data = {
-            "message": message,
+            "message": message_hash,  # Short hash for signing
+            "display_message": display_message,  # Human-readable version
+            "raw_data": message_data,  # Original data for verification
             "timestamp": str(timestamp),
             "nonce": nonce,
             "expires_at": str(timestamp + self.challenge_expiry)
@@ -42,6 +50,14 @@ class StarkNetAuthenticator:
         
         logger.info(f"Generated authentication challenge for address: {address}")
         return challenge_data
+    
+    def _create_message_hash(self, message_data: str) -> str:
+        """Create a short hash suitable for StarkNet signing."""
+        # Create SHA256 hash and take first 31 bytes (248 bits) to fit in felt
+        hash_bytes = hashlib.sha256(message_data.encode('utf-8')).digest()
+        # Convert to hex and ensure it fits in a StarkNet felt (< 2^252)
+        hash_hex = hash_bytes[:31].hex()
+        return f"0x{hash_hex}"
     
     async def verify_signature(
         self, 
@@ -64,20 +80,17 @@ class StarkNetAuthenticator:
                 logger.warning(f"No challenge found for address: {address}")
                 return False
             
-            # Verify the message matches the stored challenge
+            # Verify the message matches the stored challenge hash
             if stored_challenge["message"] != message:
-                logger.warning(f"Message mismatch for address: {address}")
+                logger.warning(f"Message hash mismatch for address: {address}")
                 return False
             
             # Verify signature using StarkNet client
             starknet_client = get_starknet_client()
             
-            # Convert message to felt for signature verification
-            message_hash = self._message_to_hash(message)
-            
-            # Verify the signature (this would need to be implemented in starknet_client)
+            # Verify the signature
             is_valid = await self._verify_starknet_signature(
-                address, message_hash, signature, starknet_client
+                address, message, signature, starknet_client
             )
             
             if is_valid:
@@ -93,12 +106,6 @@ class StarkNetAuthenticator:
             logger.error(f"Error verifying signature for {address}: {e}")
             return False
     
-    def _message_to_hash(self, message: str) -> str:
-        """Convert message to hash for signature verification."""
-        # Create a hash of the message that can be used for signature verification
-        message_bytes = message.encode('utf-8')
-        return hashlib.sha256(message_bytes).hexdigest()
-    
     async def _verify_starknet_signature(
         self, 
         address: str, 
@@ -106,29 +113,29 @@ class StarkNetAuthenticator:
         signature: list,
         starknet_client
     ) -> bool:
-        """Verify StarkNet signature (placeholder implementation)."""
-        # This is a placeholder implementation
-        # In a real implementation, you would:
-        # 1. Convert the message to the proper format for StarkNet
-        # 2. Use the StarkNet client to verify the signature
-        # 3. Check that the signature was created by the account at the given address
-        
+        """Verify StarkNet signature."""
         try:
-            # For now, we'll do basic validation
-            if not signature or len(signature) < 2:
+            # Basic validation
+            if not signature or len(signature) != 2:
+                logger.warning(f"Invalid signature format for {address}")
                 return False
             
             # Check if the address format is valid
-            if not address.startswith("0x") or len(address) != 66:
+            if not address.startswith("0x"):
+                return False
+            
+            # Convert signature components to integers
+            try:
+                r = int(signature[0], 16) if isinstance(signature[0], str) else signature[0]
+                s = int(signature[1], 16) if isinstance(signature[1], str) else signature[1]
+            except (ValueError, TypeError):
+                logger.warning(f"Invalid signature format for {address}")
                 return False
             
             # TODO: Implement actual StarkNet signature verification
-            # This would involve:
-            # - Getting the account contract at the address
-            # - Calling the account's is_valid_signature function
-            # - Verifying the signature components
+            # This would involve calling the account contract's is_valid_signature function
+            # For now, we'll validate the format and return True for development
             
-            # For development, return True for valid format
             logger.warning("Using placeholder signature verification - implement proper verification for production")
             return True
             

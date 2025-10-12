@@ -24,12 +24,6 @@ class StarkNetClient:
         try:
             # Create client
             self.client = FullNodeClient(node_url=self.settings.starknet_rpc_url)
-            # self.client = GatewayClient(self.settings.starknet_rpc_url)
-            # self.client = Client()
-            # self.client = Client(
-            #     node_url=self.settings.starknet_rpc_url,
-            #     chain=StarknetChainId.TESTNET if self.settings.network == "testnet" else StarknetChainId.MAINNET
-            # )
             
             # Load contract ABI
             with open(self.settings.contract_abi_path, 'r') as f:
@@ -38,10 +32,20 @@ class StarkNetClient:
             # Extract ABI from contract class
             contract_abi = contract_class.get('abi', contract_class)
             
+            # Filter out unsupported ABI entries (like "impl" type)
+            # Only keep supported types: function, event, struct, constructor, interface
+            supported_types = {'function', 'event', 'struct', 'constructor', 'interface'}
+            filtered_abi = [
+                entry for entry in contract_abi 
+                if entry.get('type') in supported_types
+            ]
+            
+            logger.info(f"Filtered ABI from {len(contract_abi)} to {len(filtered_abi)} entries")
+            
             # Create contract instance
             self.contract = Contract(
                 address=self.settings.contract_address,
-                abi=contract_abi,
+                abi=filtered_abi,
                 provider=self.client
             )
             
@@ -140,13 +144,25 @@ class StarkNetClient:
             if to_block is None:
                 to_block = await self.get_latest_block_number()
             
-            # Get events from the contract
-            events = await self.client.get_events(
-                address=self.settings.contract_address,
-                from_block=from_block,
-                to_block=to_block,
-                keys=event_filter
-            )
+            # Get events from the contract using the correct API
+            # The newer starknet.py uses different parameter names
+            try:
+                # Try the newer API first
+                events = await self.client.get_events(
+                    address=self.settings.contract_address,
+                    from_block_number=from_block,
+                    to_block_number=to_block,
+                    keys=event_filter,
+                    chunk_size=1000
+                )
+            except TypeError:
+                # Fallback to older API if the above fails
+                events = await self.client.get_events(
+                    address=self.settings.contract_address,
+                    from_block=from_block,
+                    to_block=to_block,
+                    keys=event_filter
+                )
             
             processed_events = []
             for event in events.events:
