@@ -125,6 +125,30 @@ export interface AuthRequest {
   timestamp: number;
 }
 
+export interface User {
+  id: string;
+  address: string;
+  username?: string;
+  email?: string;
+  bio?: string;
+  avatar_url?: string;
+  timezone?: string;
+  language?: string;
+  notifications_enabled: boolean;
+  email_notifications: boolean;
+  public_key?: string;
+  registered_at: string;
+  email_verified: boolean;
+  email_verified_at?: string;
+  active: boolean;
+  is_admin: boolean;
+  is_verified: boolean;
+  verified_at?: string;
+  verified_by?: string;
+  last_seen?: string;
+  login_count: number;
+}
+
 export interface Worker {
   id: string;
   address: string;
@@ -143,7 +167,7 @@ export interface AuthResponse {
   refresh_token: string;
   token_type: string;
   expires_in: number;
-  worker: Worker;
+  user: User;
 }
 
 export const authAPI = {
@@ -187,8 +211,8 @@ export const authAPI = {
     });
   },
 
-  async getCurrentUser(): Promise<Worker> {
-    return apiFetch<Worker>("/api/v1/auth/me", {
+  async getCurrentUser(): Promise<User> {
+    return apiFetch<User>("/api/v1/auth/me/user", {
       requiresAuth: true,
     });
   },

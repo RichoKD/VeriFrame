@@ -42,12 +42,25 @@ export function WalletConnectButton({
     }
 
     try {
+      console.log("Starting wallet connection...");
       await connect();
+      console.log("Wallet connected successfully");
       // Redirect after successful connection
       router.push(redirectTo);
     } catch (err) {
-      // Error is already set in wallet state
       console.error("Connection failed:", err);
+
+      // More specific error handling
+      if (err instanceof Error) {
+        if (err.message.includes("Authentication failed")) {
+          console.error("Authentication error details:", err);
+          // You might want to show a more specific error message to the user
+        } else if (err.message.includes("User rejected")) {
+          console.log("User rejected the connection request");
+        } else {
+          console.error("Unknown connection error:", err.message);
+        }
+      }
     }
   };
 

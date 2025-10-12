@@ -11,7 +11,7 @@ import {
   authAPI,
   setTokens,
   clearTokens,
-  type Worker,
+  type User,
   type AuthResponse,
 } from "@/lib/api-client";
 
@@ -19,7 +19,7 @@ export type UserRole = "creator" | "node" | "admin" | null;
 
 interface AuthContextType {
   // State
-  user: Worker | null;
+  user: User | null;
   role: UserRole;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -39,7 +39,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<Worker | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [role, setRoleState] = useState<UserRole>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,9 +86,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadUser();
   }, []);
 
-  const detectRole = (worker: Worker): UserRole => {
-    if (worker.is_admin) return "admin";
-    if (worker.jobs_completed > 0 || worker.active) return "node";
+  const detectRole = (user: User): UserRole => {
+    if (user.is_admin) return "admin";
+    // For now, treat verified users as potential nodes, others as creators
+    if (user.is_verified) return "node";
     return "creator";
   };
 
@@ -114,16 +115,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("user_address", address);
 
         // Set user
-        setUser(response.worker);
+        setUser(response.user);
 
         // Auto-detect role
-        const detectedRole = detectRole(response.worker);
+        const detectedRole = detectRole(response.user);
         setRoleState(detectedRole);
         if (detectedRole) {
           localStorage.setItem("user_role", detectedRole);
         }
 
-        console.log("Login successful:", response.worker);
+        console.log("Login successful:", response.user);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Authentication failed";
