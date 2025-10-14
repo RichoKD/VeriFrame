@@ -38,6 +38,7 @@ export function CreateJobDialog({ open, onOpenChange }: CreateJobDialogProps) {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [file, setFile] = useState<File | null>(null);
+  const [uploadingToIpfs, setUploadingToIpfs] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,16 +49,69 @@ export function CreateJobDialog({ open, onOpenChange }: CreateJobDialogProps) {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadToIpfs = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingToIpfs(true);
+      console.log(`Uploading ${file.name} to IPFS...`);
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Upload to local IPFS node
+      const response = await fetch('http://127.0.0.1:5001/api/v0/add', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`IPFS upload failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const cid = result.Hash;
+      
+      console.log(`Successfully uploaded to IPFS: ${cid}`);
+      return cid;
+    } catch (error) {
+      console.error('IPFS upload error:', error);
+      setErrors((prev) => ({
+        ...prev,
+        asset_cid_part1: error instanceof Error 
+          ? `IPFS upload failed: ${error.message}. Make sure IPFS daemon is running.`
+          : 'Failed to upload to IPFS',
+      }));
+      return null;
+    } finally {
+      setUploadingToIpfs(false);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
-      // In production, you'd upload to IPFS here
-      // For now, simulate with a placeholder CID
-      setFormData((prev) => ({
-        ...prev,
-        asset_cid_part1: `Qm${selectedFile.name.replace(/[^a-zA-Z0-9]/g, "")}`,
-      }));
+      
+      // Upload to IPFS and get real CID
+      const cid = await uploadToIpfs(selectedFile);
+      
+      if (cid) {
+        setFormData((prev) => ({
+          ...prev,
+          asset_cid_part1: cid,
+        }));
+        // Clear any previous errors
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.asset_cid_part1;
+          return newErrors;
+        });
+      } else {
+        // Upload failed, clear the CID
+        setFormData((prev) => ({
+          ...prev,
+          asset_cid_part1: "",
+        }));
+      }
     }
   };
 
@@ -194,21 +248,41 @@ export function CreateJobDialog({ open, onOpenChange }: CreateJobDialogProps) {
                   type="file"
                   onChange={handleFileChange}
                   accept=".blend,.fbx,.obj,.gltf,.glb"
-                  className="bg-slate-800 border-slate-700 text-slate-200 file:bg-blue-500 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4"
+                  disabled={uploadingToIpfs}
+                  className="bg-slate-800 border-slate-700 text-slate-200 file:bg-blue-500 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4 disabled:opacity-50"
                 />
               </div>
-              {file && (
-                <div className="flex items-center gap-2 text-sm text-green-400">
-                  <Upload className="w-4 h-4" />
-                  {file.name}
+              {uploadingToIpfs && (
+                <div className="flex items-center gap-2 text-sm text-blue-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Uploading to IPFS...
+                </div>
+              )}
+              {file && !uploadingToIpfs && formData.asset_cid_part1 && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-sm text-green-400">
+                    <Upload className="w-4 h-4" />
+                    {file.name}
+                  </div>
+                  <div className="text-xs text-slate-500 font-mono bg-slate-800 p-2 rounded border border-slate-700">
+                    CID: {formData.asset_cid_part1}
+                  </div>
                 </div>
               )}
               {errors.asset_cid_part1 && (
-                <p className="text-sm text-red-400">{errors.asset_cid_part1}</p>
+                <Alert variant="destructive" className="bg-red-900/20 border-red-900/50">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{errors.asset_cid_part1}</AlertDescription>
+                </Alert>
               )}
-              <p className="text-xs text-slate-500">
-                File will be uploaded to IPFS
-              </p>
+              <div className="flex items-start gap-2 text-xs text-slate-500 bg-slate-800/50 p-3 rounded border border-slate-700">
+                <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-slate-400 mb-1">IPFS Upload:</p>
+                  <p>File will be uploaded to your local IPFS node (127.0.0.1:5001)</p>
+                  <p className="mt-1">Make sure the IPFS daemon is running: <code className="text-blue-400">ipfs daemon</code></p>
+                </div>
+              </div>
             </div>
 
             {/* Reward Amount */}
@@ -313,16 +387,21 @@ export function CreateJobDialog({ open, onOpenChange }: CreateJobDialogProps) {
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={createJob.isPending}
+              disabled={createJob.isPending || uploadingToIpfs}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={createJob.isPending}
+              disabled={createJob.isPending || uploadingToIpfs}
               className="bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500"
             >
-              {createJob.isPending ? (
+              {uploadingToIpfs ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Uploading to IPFS...
+                </>
+              ) : createJob.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Creating...
