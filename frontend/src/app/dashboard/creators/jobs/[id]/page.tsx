@@ -101,7 +101,7 @@ export default function JobDetailsPage({
       gradientVariant="blue"
       showFooter={true}
     >
-      <div className="py-20">
+      <div className="py-12 sm:py-16 lg:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <motion.div
@@ -295,7 +295,7 @@ export default function JobDetailsPage({
                             alt="Rendered output"
                             className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <a
                               href={getIpfsUrl(job.full_result_cid)}
@@ -394,7 +394,7 @@ export default function JobDetailsPage({
                           <div className="flex flex-col items-center">
                             <div className="w-3 h-3 bg-blue-400 rounded-full ring-4 ring-blue-400/20" />
                             {index < eventsList.length - 1 && (
-                              <div className="w-px h-full bg-border mt-2" />
+                              <div className="w-px h-full bg-slate-700 mt-2" />
                             )}
                           </div>
                           <div className="flex-1 pb-6">

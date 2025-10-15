@@ -96,7 +96,7 @@ export default function CreatorDashboard() {
       gradientVariant="blue"
       showFooter={true}
     >
-      <div className="py-20">
+      <div className="py-12 sm:py-16 lg:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
           <motion.div
@@ -108,7 +108,7 @@ export default function CreatorDashboard() {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4">
               Your Creative Workspace
             </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+            <p className="text-lg text-slate-400 leading-relaxed mb-8">
               Manage your rendering jobs, track progress, and collaborate with our network of powerful nodes
             </p>
             <Button 
@@ -137,10 +137,10 @@ export default function CreatorDashboard() {
                 animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4, delay: 0.1 * index }}
               >
-                <Card className={`p-6 bg-gradient-to-br ${stat.gradient} ${stat.border} border hover:border-primary transition-all duration-300 hover:shadow-glow-primary hover:-translate-y-1 group`}>
+                <Card className={`p-6 bg-gradient-to-br ${stat.gradient} ${stat.border} border hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
+                      <p className="text-sm text-slate-400 mb-1">{stat.label}</p>
                       <p className={`text-3xl font-bold ${stat.valueColor}`}>
                         {typeof stat.value === 'number' ? stat.value : stat.value}
                       </p>
@@ -165,7 +165,7 @@ export default function CreatorDashboard() {
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
                 Your Jobs
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-slate-400">
                 Track and manage all your rendering jobs in one place
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function CreatorDashboard() {
                   className={`transition-all duration-300 ${
                     statusFilter === status 
                       ? "bg-blue-500 hover:bg-blue-600" 
-                      : "hover:border-primary hover:bg-primary/10 hover:text-primary"
+                      : "hover:border-blue-500 hover:bg-blue-500/10 hover:text-blue-400"
                   }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -201,12 +201,12 @@ export default function CreatorDashboard() {
                 <Loader2 className="w-12 h-12 animate-spin text-blue-400" />
               </div>
             ) : filteredJobs.length === 0 ? (
-              <Card className="p-12 text-center border-dashed border-2 border-border hover:border-primary transition-all duration-300">
-                <Briefcase className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <h3 className="text-xl font-bold text-foreground mb-2">
+              <Card className="p-12 text-center border-dashed border-2 border-slate-700 hover:border-blue-500 transition-all duration-300">
+                <Briefcase className="w-16 h-16 text-slate-400 mx-auto mb-4 opacity-50" />
+                <h3 className="text-xl font-bold text-slate-200 mb-2">
                   {statusFilter === "all" ? "No jobs yet" : `No ${statusFilter} jobs`}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed mb-6 max-w-md mx-auto">
+                <p className="text-slate-400 leading-relaxed mb-6 max-w-md mx-auto">
                   Get started by creating your first rendering job and let our network handle the heavy lifting
                 </p>
                 <Button 
@@ -228,11 +228,11 @@ export default function CreatorDashboard() {
                     animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <Card className="group p-6 border border-border hover:border-primary transition-all duration-300 hover:shadow-glow-primary hover:-translate-y-1">
+                    <Card className="group p-6 border border-slate-700 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                         <div className="flex-1 space-y-4">
                           <div className="flex items-center gap-3 flex-wrap">
-                            <h3 className="text-xl font-bold text-foreground">
+                            <h3 className="text-xl font-bold text-slate-200">
                               Job #{job.chain_job_id}
                             </h3>
                             <Badge 
@@ -247,14 +247,14 @@ export default function CreatorDashboard() {
                             </Badge>
                           </div>
 
-                          <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+                          <div className="flex flex-wrap gap-6 text-sm text-slate-400">
                             <div className="flex items-center gap-2">
                               <div className="p-2 rounded-lg bg-green-500/10">
                                 <DollarSign className="w-4 h-4 text-green-400" />
                               </div>
                               <div>
-                                <p className="text-xs text-muted-foreground">Reward</p>
-                                <p className="font-semibold text-foreground">
+                                <p className="text-xs text-slate-400">Reward</p>
+                                <p className="font-semibold text-slate-200">
                                   {(job.reward_amount / 1e18).toFixed(4)} ETH
                                 </p>
                               </div>
@@ -264,8 +264,8 @@ export default function CreatorDashboard() {
                                 <Calendar className="w-4 h-4 text-blue-400" />
                               </div>
                               <div>
-                                <p className="text-xs text-muted-foreground">Deadline</p>
-                                <p className="font-semibold text-foreground">
+                                <p className="text-xs text-slate-400">Deadline</p>
+                                <p className="font-semibold text-slate-200">
                                   {new Date(job.deadline).toLocaleDateString()}
                                 </p>
                               </div>
@@ -275,8 +275,8 @@ export default function CreatorDashboard() {
                                 <TrendingUp className="w-4 h-4 text-purple-400" />
                               </div>
                               <div>
-                                <p className="text-xs text-muted-foreground">Min Reputation</p>
-                                <p className="font-semibold text-foreground">{job.min_reputation}</p>
+                                <p className="text-xs text-slate-400">Min Reputation</p>
+                                <p className="font-semibold text-slate-200">{job.min_reputation}</p>
                               </div>
                             </div>
                           </div>
@@ -287,7 +287,7 @@ export default function CreatorDashboard() {
                             variant="outline" 
                             size="sm"
                             onClick={() => router.push(`/dashboard/creators/jobs/${job.id}`)}
-                            className="flex-1 lg:flex-none hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                            className="flex-1 lg:flex-none hover:border-blue-500 hover:bg-blue-500/10 hover:text-blue-400 transition-all duration-300"
                           >
                             View Details
                             <ArrowRight className="w-4 h-4 ml-2" />

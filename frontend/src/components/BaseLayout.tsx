@@ -82,36 +82,38 @@ export default function BaseLayout({
       )}
 
       {/* Header */}
-      <header className="relative z-10 border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800">
+        <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo/Brand */}
             <Link
               href="/"
-              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 group"
             >
-              <Triangle className="text-blue-400 w-6 h-6" />
-              <h3 className="text-lg text-slate-200 font-semibold">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-500/50 group-hover:scale-110">
+                <Triangle className="text-white w-5 h-5" />
+              </div>
+              <span className="text-xl font-bold text-slate-200 hidden sm:block">
                 StarkRender
-              </h3>
+              </span>
             </Link>
 
-            {/* Title Section (optional) */}
+            {/* Center Title Section (Desktop) */}
             {title && (
-              <div className="hidden md:block flex-1 px-8">
+              <div className="hidden lg:flex flex-col items-center flex-1 px-8 max-w-2xl">
                 <h1
-                  className={`text-2xl font-bold bg-gradient-to-r ${colors.title} bg-clip-text text-transparent`}
+                  className={`text-2xl font-bold bg-gradient-to-r ${colors.title} bg-clip-text text-transparent text-center`}
                 >
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="text-sm text-slate-400 mt-1">{subtitle}</p>
+                  <p className="text-sm text-slate-400 mt-1 text-center line-clamp-1">{subtitle}</p>
                 )}
               </div>
             )}
 
             {/* Header Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               {headerActions ? (
                 headerActions
               ) : (
@@ -119,20 +121,20 @@ export default function BaseLayout({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-zinc-700 text-slate-300 hover:bg-zinc-800"
+                    className="hidden sm:flex border-slate-700 text-slate-300 hover:border-blue-500 hover:bg-blue-500/10 hover:text-blue-400 transition-all duration-300"
                   >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Settings
+                    <Settings className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Settings</span>
                   </Button>
                   <Button
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="text-slate-400 hover:text-slate-300"
+                    className="text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all duration-300"
                   >
                     <Link href="/">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Exit
+                      <LogOut className="w-4 h-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Exit</span>
                     </Link>
                   </Button>
                 </>
@@ -142,9 +144,9 @@ export default function BaseLayout({
 
           {/* Mobile Title */}
           {title && (
-            <div className="md:hidden mt-4">
+            <div className="lg:hidden pb-3 border-t border-zinc-800 mt-3 pt-3">
               <h1
-                className={`text-xl font-bold bg-gradient-to-r ${colors.title} bg-clip-text text-transparent`}
+                className={`text-lg sm:text-xl font-bold bg-gradient-to-r ${colors.title} bg-clip-text text-transparent`}
               >
                 {title}
               </h1>
@@ -153,8 +155,11 @@ export default function BaseLayout({
               )}
             </div>
           )}
-        </div>
+        </nav>
       </header>
+
+      {/* Spacer for fixed header */}
+      <div className="h-16" />
 
       {/* Main Content */}
       <main className="relative z-10 flex-1">{children}</main>
