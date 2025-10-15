@@ -1,5 +1,6 @@
 # Cairo
 
+temp/
 target
 .snfoundry_cache/
 snfoundry_trace/

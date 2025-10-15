@@ -385,17 +385,27 @@ async def render_blend_file(blend_path: str, output_dir: str) -> Optional[str]:
             timeout=300  # 5 minute timeout
         )
         
-        # Blender adds frame number to output
-        actual_output = output_path.replace(".png", "0001.png")
+        # Blender adds frame number to output in format: filename####.ext
+        # So render.png becomes render.png0001.png
+        actual_output_with_ext = output_path + "0001.png"  # render.png0001.png
+        actual_output_no_ext = output_path.replace(".png", "0001.png")  # render0001.png
         
-        if os.path.exists(actual_output):
-            print(f"[Worker] Render successful: {actual_output}")
-            return actual_output
+        # Check all possible output locations
+        if os.path.exists(actual_output_with_ext):
+            print(f"[Worker] Render successful: {actual_output_with_ext}")
+            return actual_output_with_ext
+        elif os.path.exists(actual_output_no_ext):
+            print(f"[Worker] Render successful: {actual_output_no_ext}")
+            return actual_output_no_ext
         elif os.path.exists(output_path):
             print(f"[Worker] Render successful: {output_path}")
             return output_path
         else:
             print(f"[Worker] Render failed - output file not found")
+            print(f"[Worker] Checked locations:")
+            print(f"[Worker]   - {actual_output_with_ext}")
+            print(f"[Worker]   - {actual_output_no_ext}")
+            print(f"[Worker]   - {output_path}")
             print(f"[Worker] stdout: {result.stdout[-500:]}")  # Last 500 chars
             print(f"[Worker] stderr: {result.stderr[-500:]}")
             return None
@@ -437,9 +447,21 @@ def load_completed_jobs() -> set:
             print(f"[Worker] Error loading completed jobs: {e}")
     return set()
 
-
 def save_completed_job(job_id: str):
+    """Save a completed job ID to the local tracking file"""
+    completed = load_completed_jobs()
+    completed.add(job_id)
+    
+    try:
+        with open(COMPLETED_JOBS_FILE, 'w') as f:
+            json.dump({"completed_jobs": list(completed)}, f, indent=2)
+    except Exception as e:
+        print(f"[Worker] Error saving completed jobs: {e}")
+
+
+def save_completed_job2(job_id: str):
     """Save a job ID to the completed jobs list"""
+
     completed = load_completed_jobs()
     completed.add(job_id)
     
@@ -500,14 +522,29 @@ async def claim_job(auth: WorkerAuthenticator, job_id: str) -> bool:
 
 
 async def submit_job_completion(auth: WorkerAuthenticator, job_id: str, result_cid: str) -> bool:
-    """Submit completed job result to the backend"""
+    """Submit completed job result to the backend using /jobs/{job_id}/complete endpoint"""
     try:
         await auth.ensure_authenticated()
+        
+        # Prepare payload according to JobCompletion schema
+        # Split CID if it's too long (StarkNet contract limitation)
+        result_cid_part1 = result_cid[:31] if len(result_cid) > 31 else result_cid
+        result_cid_part2 = result_cid[31:] if len(result_cid) > 31 else None
+        
+        payload = {
+            "result_cid_part1": result_cid_part1,
+            "result_cid_part2": result_cid_part2,
+            "quality_score": 100,  # Default quality score - could be enhanced with actual quality checks
+            "worker_address": auth.worker_address
+        }
+        
+        print(f"[Worker] Submitting job completion to /jobs/{job_id}/complete")
+        print(f"[Worker] Result CID: {result_cid}")
         
         response = requests.post(
             f"{auth.backend_url}/jobs/{job_id}/complete",
             headers=auth.get_headers(),
-            json={"result_cid": result_cid}
+            json=payload
         )
         response.raise_for_status()
         
@@ -517,6 +554,8 @@ async def submit_job_completion(auth: WorkerAuthenticator, job_id: str, result_c
         
     except Exception as e:
         print(f"[Worker] Error submitting job completion: {e}")
+        if hasattr(e, 'response') and hasattr(e.response, 'text'):
+            print(f"[Worker] Response: {e.response.text}")
         return False
 
 
