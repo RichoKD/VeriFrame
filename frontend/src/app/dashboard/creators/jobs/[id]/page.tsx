@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { getIpfsUrl } from "@/lib/constants";
 import {
   ArrowLeft,
   Calendar,
@@ -22,6 +23,7 @@ import {
   Loader2,
   Info,
   User,
+  Image as ImageIcon,
 } from "lucide-react";
 
 export default function JobDetailsPage({
@@ -209,14 +211,51 @@ export default function JobDetailsPage({
                   <CheckCircle className="w-5 h-5 text-green-400" />
                   Completed Results
                 </h2>
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {/* Rendered Image Preview */}
+                  <div>
+                    <p className="text-sm text-slate-400 mb-2">Rendered Output</p>
+                    <div className="relative rounded-lg overflow-hidden bg-slate-800 border border-slate-700">
+                      <img
+                        src={getIpfsUrl(job.full_result_cid)}
+                        alt="Rendered output"
+                        className="w-full h-auto"
+                      />
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        <a
+                          href={getIpfsUrl(job.full_result_cid)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-slate-900/80 hover:bg-slate-900 p-2 rounded-lg transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4 text-slate-300" />
+                        </a>
+                        <a
+                          href={getIpfsUrl(job.full_result_cid)}
+                          download
+                          className="bg-slate-900/80 hover:bg-slate-900 p-2 rounded-lg transition-colors"
+                        >
+                          <Download className="w-4 h-4 text-slate-300" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
                     <p className="text-sm text-slate-400 mb-1">Result CID</p>
                     <div className="flex items-center gap-2">
                       <code className="text-sm bg-slate-800 px-3 py-2 rounded text-green-400 flex-1 overflow-x-auto">
                         {job.full_result_cid}
                       </code>
-                      <Button size="sm" className="bg-green-500 hover:bg-green-600">
+                      <Button 
+                        size="sm" 
+                        className="bg-green-500 hover:bg-green-600"
+                        onClick={() => {
+                          if (job.full_result_cid) {
+                            window.open(getIpfsUrl(job.full_result_cid), '_blank');
+                          }
+                        }}
+                      >
                         <Download className="w-4 h-4 mr-2" />
                         Download
                       </Button>
@@ -239,6 +278,17 @@ export default function JobDetailsPage({
                           {job.quality_score}/100
                         </span>
                       </div>
+                    </div>
+                  )}
+
+                  {job.completed_at && (
+                    <div>
+                      <p className="text-sm text-slate-400 mb-1">
+                        Completed At
+                      </p>
+                      <p className="text-sm text-slate-200">
+                        {new Date(job.completed_at).toLocaleString()}
+                      </p>
                     </div>
                   )}
                 </div>
