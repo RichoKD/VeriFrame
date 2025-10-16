@@ -42,8 +42,8 @@ class Settings(BaseSettings):
     ipfs_gateway_url: str = os.getenv("IPFS_GATEWAY_URL") or "http://localhost:8080"
 
     # API settings
-    api_host: str = os.getenv("API_HOST") or "0.0.0.0"
-    api_port: int = os.getenv("API_PORT") or 8000
+    api_host: str = os.getenv("HOST") or "0.0.0.0"
+    api_port: int = os.getenv("PORT") or 8000
     cors_origins: List[str] = os.getenv("CORS_ORIGINS").split(",") if os.getenv("CORS_ORIGINS") else ["http://localhost:3000", "http://localhost:8080"]
 
     # Security
