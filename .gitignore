@@ -1,5 +1,6 @@
 # Cairo
-
+__pycache__
+temp/
 target
 .snfoundry_cache/
 snfoundry_trace/
