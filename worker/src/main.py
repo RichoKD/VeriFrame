@@ -97,6 +97,43 @@ CONTRACT_ABI = [
         "outputs": [{"name": "result_cid", "type": "felt"}],
         "state_mutability": "view",
     },
+    # Worker Authorization and Reputation System
+    {
+        "type": "function",
+        "name": "register_worker",
+        "inputs": [{"name": "worker_info_cid", "type": "felt"}],
+        "outputs": [],
+        "state_mutability": "external",
+    },
+    {
+        "type": "function",
+        "name": "get_worker_status",
+        "inputs": [{"name": "worker", "type": "felt"}],
+        "outputs": [
+            {"name": "verified", "type": "bool"},
+            {"name": "reputation", "type": "u16"},
+            {"name": "jobs_completed", "type": "u32"},
+            {"name": "jobs_failed", "type": "u32"}
+        ],
+        "state_mutability": "view",
+    },
+    {
+        "type": "function",
+        "name": "is_worker_eligible",
+        "inputs": [
+            {"name": "worker", "type": "felt"},
+            {"name": "job_id", "type": "felt"}
+        ],
+        "outputs": [{"name": "eligible", "type": "bool"}],
+        "state_mutability": "view",
+    },
+    {
+        "type": "function",
+        "name": "get_minimum_reputation_for_job",
+        "inputs": [{"name": "job_id", "type": "felt"}],
+        "outputs": [{"name": "min_reputation", "type": "u16"}],
+        "state_mutability": "view",
+    },
 ]
 
 def combine_cid_parts(part1, part2):
@@ -611,8 +648,120 @@ async def upload_render_result(ipfs, render_path):
         print(f"[Worker] Error uploading render result: {e}")
         return None
 
-async def check_for_jobs(contract, max_job_id=5):
-    """Check for available jobs by iterating through job IDs"""
+async def check_worker_registration(contract, worker_address):
+    """Check if worker is registered and verified"""
+    try:
+        print(f"[Worker] Checking registration status for worker: {hex(worker_address)}")
+        
+        # Get worker status
+        status_response = await contract.functions["get_worker_status"].call(worker_address)
+        
+        # Handle response format
+        if hasattr(status_response, 'verified'):
+            verified = status_response.verified
+            reputation = status_response.reputation
+            jobs_completed = status_response.jobs_completed
+            jobs_failed = status_response.jobs_failed
+        else:
+            # Fallback for tuple response
+            verified = status_response[0] if len(status_response) > 0 else False
+            reputation = status_response[1] if len(status_response) > 1 else 0
+            jobs_completed = status_response[2] if len(status_response) > 2 else 0
+            jobs_failed = status_response[3] if len(status_response) > 3 else 0
+        
+        print(f"[Worker] Status - Verified: {verified}, Reputation: {reputation}, Completed: {jobs_completed}, Failed: {jobs_failed}")
+        
+        return {
+            "verified": verified,
+            "reputation": reputation,
+            "jobs_completed": jobs_completed,
+            "jobs_failed": jobs_failed,
+            "registered": reputation > 0  # If reputation > 0, worker is registered
+        }
+    except Exception as e:
+        print(f"[Worker] Error checking worker registration: {e}")
+        return {
+            "verified": False,
+            "reputation": 0,
+            "jobs_completed": 0,
+            "jobs_failed": 0,
+            "registered": False
+        }
+
+async def register_worker_if_needed(contract, worker_address):
+    """Register worker if not already registered"""
+    try:
+        status = await check_worker_registration(contract, worker_address)
+        
+        if not status["registered"]:
+            print(f"[Worker] Worker not registered, attempting registration...")
+            
+            # Create worker info and upload to IPFS
+            worker_info = {
+                "worker_address": hex(worker_address),
+                "registration_time": time.time(),
+                "capabilities": ["blender_rendering", "3d_modeling"],
+                "hardware_specs": {
+                    "blender_version": "4.0+",
+                    "gpu_available": True,  # Could be detected
+                    "cpu_cores": 4,  # Could be detected
+                },
+                "contact_info": "worker@veriframe.dev"
+            }
+            
+            # Upload worker info to IPFS (for now, use a placeholder)
+            worker_info_cid = string_to_felt252("QmWorkerInfo123")  # In production, upload to IPFS
+            
+            print(f"[Worker] Registering worker with info CID: {worker_info_cid}")
+            
+            # Note: This would require a wallet/account to sign transactions
+            # For now, just log the intent
+            print(f"[Worker] Would register worker with CID: {hex(worker_info_cid)}")
+            print(f"[Worker] Registration requires transaction signing - implement wallet integration")
+            
+            return False  # Registration not completed in this demo
+        else:
+            print(f"[Worker] Worker already registered")
+            return True
+            
+    except Exception as e:
+        print(f"[Worker] Error during worker registration: {e}")
+        return False
+
+async def check_job_eligibility(contract, worker_address, job_id):
+    """Check if worker is eligible for a specific job"""
+    try:
+        print(f"[Worker] Checking eligibility for job {job_id}")
+        
+        # Check worker eligibility
+        eligibility_response = await contract.functions["is_worker_eligible"].call(worker_address, job_id)
+        eligible = eligibility_response.eligible if hasattr(eligibility_response, 'eligible') else eligibility_response
+        
+        if not eligible:
+            print(f"[Worker] Worker not eligible for job {job_id}")
+            
+            # Get minimum reputation requirement
+            min_rep_response = await contract.functions["get_minimum_reputation_for_job"].call(job_id)
+            min_reputation = min_rep_response.min_reputation if hasattr(min_rep_response, 'min_reputation') else min_rep_response
+            
+            # Get worker status for comparison
+            status = await check_worker_registration(contract, worker_address)
+            
+            print(f"[Worker] Job requires minimum reputation: {min_reputation}")
+            print(f"[Worker] Worker current reputation: {status['reputation']}")
+            print(f"[Worker] Worker verified: {status['verified']}")
+            
+            return False
+        else:
+            print(f"[Worker] Worker eligible for job {job_id}")
+            return True
+            
+    except Exception as e:
+        print(f"[Worker] Error checking job eligibility: {e}")
+        return False
+
+async def check_for_jobs(contract, worker_address, max_job_id=5):
+    """Check for available jobs by iterating through job IDs with authorization checks"""
     available_jobs = []
 
     # Read completed jobs to avoid reprocessing
@@ -627,6 +776,23 @@ async def check_for_jobs(contract, max_job_id=5):
     except Exception as e:
         print(f"[Worker] Error loading completed jobs: {e}")
 
+    # Check worker registration and verification status
+    worker_status = await check_worker_registration(contract, worker_address)
+    
+    if not worker_status["registered"]:
+        print(f"[Worker] Worker not registered - attempting registration")
+        registered = await register_worker_if_needed(contract, worker_address)
+        if not registered:
+            print(f"[Worker] Worker registration required but not completed")
+            return []
+    
+    if not worker_status["verified"]:
+        print(f"[Worker] Worker not verified - only verified workers can take jobs")
+        print(f"[Worker] Current reputation: {worker_status['reputation']}")
+        return []
+
+    print(f"[Worker] Worker authorized - Reputation: {worker_status['reputation']}, Completed: {worker_status['jobs_completed']}, Failed: {worker_status['jobs_failed']}")
+
     for job_id in range(1, max_job_id + 1):
         # Skip already completed jobs
         if job_id in completed_jobs:
@@ -639,9 +805,20 @@ async def check_for_jobs(contract, max_job_id=5):
             creator = creator_response.creator if hasattr(creator_response, 'creator') else creator_response
             print(f"[Worker] Checking job {job_id}, creator: {creator}")
             if creator != 0:  # Job exists
+                
+                # Check if worker is eligible for this specific job
+                if not await check_job_eligibility(contract, worker_address, job_id):
+                    print(f"[Worker] Worker not eligible for job {job_id} - skipping")
+                    continue
+                
                 # Check if job has no worker assigned yet
-                # worker = await contract.functions["get_job_worker"].call(job_id)
-                # if worker == 0:  # No worker assigned
+                worker_response = await contract.functions["get_job_worker"].call(job_id)
+                assigned_worker = worker_response.worker if hasattr(worker_response, 'worker') else worker_response
+                
+                if assigned_worker != 0:  # Job already has a worker
+                    print(f"[Worker] Job {job_id} already has worker assigned: {hex(assigned_worker)}")
+                    continue
+                
                 reward_response = await contract.functions["get_job_reward"].call(job_id)
                 reward = uint256_to_int(reward_response)
                 asset_cid_response = await contract.functions["get_job_asset_cid"].call(job_id)
@@ -662,13 +839,18 @@ async def check_for_jobs(contract, max_job_id=5):
                     print(f"[Worker] Skipping job {job_id} with asset CID: {asset_cid}")
                     continue
 
+                # Get minimum reputation requirement for display
+                min_rep_response = await contract.functions["get_minimum_reputation_for_job"].call(job_id)
+                min_reputation = min_rep_response.min_reputation if hasattr(min_rep_response, 'min_reputation') else min_rep_response
+
                 available_jobs.append({
                     "job_id": job_id,
                     "creator": hex(creator),
                     "reward": reward,
                     "asset_cid": asset_cid,
+                    "min_reputation": min_reputation,
                 })
-                print(f"[Worker] Found available job {job_id} with reward {reward}, asset CID: {asset_cid}")
+                print(f"[Worker] Found available job {job_id} with reward {reward}, asset CID: {asset_cid}, min reputation: {min_reputation}")
                 break  # Stop after finding the first available job
 
         except Exception as e:
@@ -885,6 +1067,11 @@ async def main():
         print(f"[Worker] Connected to job registry at {hex(JOB_REGISTRY_ADDRESS)}")
         print(f"[Worker] Connected to IPFS at {IPFS_API}")
         
+        # For this demo, use a placeholder worker address
+        # In production, this would be derived from the worker's wallet/account
+        worker_address = int("0x1234567890abcdef1234567890abcdef12345678", 16)  # Placeholder
+        print(f"[Worker] Worker address: {hex(worker_address)}")
+        
         # Test contract connection
         try:
             print("[Worker] Testing contract connection...")
@@ -898,7 +1085,7 @@ async def main():
             try:
                 # Check for available jobs
                 print("[Worker] Polling for rendering jobs...")
-                jobs = await check_for_jobs(contract)
+                jobs = await check_for_jobs(contract, worker_address)
                 
                 if jobs:
                     # Process the first available job

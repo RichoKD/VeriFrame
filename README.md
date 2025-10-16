@@ -20,7 +20,8 @@ VeriFrame connects job creators who need Blender rendering services with workers
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+┌─────────────────┐    
+| Backend(Fastapi)|    ┌─────────────────┐    ┌─────────────────┐
 │    Frontend     │    │  Smart Contract │    │     Worker      │
 │   (Next.js)     │◄──►│   (Starknet)    │◄──►│   (Python)      │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
@@ -56,6 +57,11 @@ VeriFrame connects job creators who need Blender rendering services with workers
    # Frontend
    cd frontend
    npm install
+
+   # Backend
+   cd ../backend
+   python3 -m venv venv
+   pip install -r requirements.txt
 
    # Worker
    cd ../worker

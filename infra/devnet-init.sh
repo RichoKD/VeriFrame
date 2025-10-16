@@ -1,39 +1,45 @@
 #!/bin/bash
 set -e
 
+URL="http://127.0.0.1:5050"
+PROFILE="account-1"
+
 echo "[INIT] Waiting for StarkNet Devnet..."
-until curl -s http://starknet-devnet:5050/is_alive > /dev/null; do
+until curl -s $URL/is_alive > /dev/null; do
     sleep 2
 done
 
 echo "[INIT] Compiling Cairo contract..."
-cd /contracts/job_registry
+cd ../contracts/job_registry
 scarb build 
 
 # Use sncast (from starknet-foundry) for deployment with imported devnet account
 echo "[INIT] Deploying contract to Devnet..."
 
 # Set environment variables for account
-export STARKNET_RPC_URL="http://starknet-devnet:5050"
+export STARKNET_RPC_URL=$URL
 export STARKNET_ACCOUNT="0x064b48806902a367c8598f4f95c305e8c1a1acba5f082d294a43793113115691"
 
+
 # Import the pre-funded devnet account (ignore warnings/errors, just create account file)
-echo "[INIT] Importing pre-funded devnet account..."
-sncast account import \
-  --url http://starknet-devnet:5050 \
-  --name devnet-deployer \
-  --address 0x064b48806902a367c8598f4f95c305e8c1a1acba5f082d294a43793113115691 \
-  --private-key 0x0000000000000000000000000000000071d7bb07b9a64f6f78ac4c816aff4da9 \
-  --type oz || echo "[INIT] Account import attempted (may have warnings)"
+# echo "[INIT] Importing pre-funded devnet account..."
+# sncast account import \
+#   --url http://starknet-devnet:5050 \
+#   --name devnet-deployer \
+#   --address 0x064b48806902a367c8598f4f95c305e8c1a1acba5f082d294a43793113115691 \
+#   --private-key 0x0000000000000000000000000000000071d7bb07b9a64f6f78ac4c816aff4da9 \
+#   --type oz || echo "[INIT] Account import attempted (may have warnings)"
 
-echo "[INIT] Account import completed"
+# echo "[INIT] Account import completed"
 
-# Declare the contract without profile
+# Declare the contract
 echo "[INIT] Declaring contract..."
-DECLARE_OUTPUT=$(sncast declare \
-  --url http://starknet-devnet:5050 \
-  --account devnet-deployer \
-  --contract-name JobRegistry)
+DECLARE_OUTPUT=$(sncast --profile $PROFILE declare --contract-name JobRegistry 2>&1)
+
+# DECLARE_OUTPUT=$(sncast declare \
+#   --url $URL \
+#   --profile $PROFILE \
+#   --contract-name JobRegistry)
 
 echo "$DECLARE_OUTPUT"
 
@@ -43,10 +49,11 @@ echo "[INIT] Contract declared with class hash: $CLASS_HASH"
 
 # Deploy the contract without profile
 echo "[INIT] Deploying contract..."
-DEPLOY_OUTPUT=$(sncast deploy \
-  --url http://starknet-devnet:5050 \
-  --account devnet-deployer \
-  --class-hash $CLASS_HASH)
+DEPLOY_OUTPUT=$(sncast --profile $PROFILE deploy --class-hash $CLASS_HASH 2>&1)
+# DEPLOY_OUTPUT=$(sncast deploy \
+#   --url $URL \
+#   --profile $PROFILE \
+#   --class-hash $CLASS_HASH)
 
 echo "$DEPLOY_OUTPUT"
 
@@ -54,11 +61,11 @@ echo "$DEPLOY_OUTPUT"
 ADDR=$(echo "$DEPLOY_OUTPUT" | grep -E "(contract_address|Contract address)" | awk '{print $NF}' | tr -d ',' | tr -d '"')
 echo "[INIT] Contract deployed at: $ADDR"
 
-echo "JOB_REGISTRY_ADDRESS=$ADDR" > /infra/worker.env
-echo "STARKNET_RPC=http://starknet-devnet:5050" >> /infra/worker.env
-echo "IPFS_API=http://ipfs-node:5001" >> /infra/worker.env
+# echo "JOB_REGISTRY_ADDRESS=$ADDR" > /infra/worker.env
+# echo "STARKNET_RPC=http://starknet-devnet:5050" >> /infra/worker.env
+# echo "IPFS_API=http://ipfs-node:5001" >> /infra/worker.env
 
-echo "[INIT] Env file written to /infra/worker.env"
+# echo "[INIT] Env file written to /infra/worker.env"
 
 
 

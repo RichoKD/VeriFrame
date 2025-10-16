@@ -1,0 +1,37 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: starknet
+    name: JobRegistry
+    network: starknet-sepolia  # or starknet-mainnet
+    source:
+      address: "{{CONTRACT_ADDRESS}}"  # Will be replaced during deployment
+      abi: JobRegistry
+      startBlock: {{START_BLOCK}}      # Will be replaced during deployment
+    mapping:
+      kind: starknet/AssemblyScript
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Worker
+        - Job
+        - ReputationHistory
+        - JobEvent
+      abis:
+        - name: JobRegistry
+          file: ./abis/JobRegistry.json
+      eventHandlers:
+        - event: WorkerRegistered(worker: felt, info_cid_part1: felt, info_cid_part2: felt)
+          handler: handleWorkerRegistered
+        - event: WorkerVerified(worker: felt, verifier: felt)
+          handler: handleWorkerVerified
+        - event: JobCreated(job_id: felt, creator: felt, reward: felt, deadline: felt)
+          handler: handleJobCreated
+        - event: JobAssigned(job_id: felt, worker: felt)
+          handler: handleJobAssigned
+        - event: JobCompleted(job_id: felt, quality_score: felt)
+          handler: handleJobCompleted
+        - event: ReputationUpdated(worker: felt, old_reputation: felt, new_reputation: felt, reason: felt)
+          handler: handleReputationUpdated
+      file: ./src/mapping.ts

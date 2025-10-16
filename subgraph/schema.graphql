@@ -1,0 +1,151 @@
+type Worker @entity {
+  id: ID!                           # Worker address
+  address: Bytes!                   # StarkNet address
+  registered: Boolean!              # Registration status
+  registeredAt: BigInt!            # Registration timestamp
+  infoCidPart1: String             # IPFS CID part 1
+  infoCidPart2: String             # IPFS CID part 2
+  fullInfoCid: String              # Combined IPFS CID
+  
+  # Verification
+  verified: Boolean!               # Verification status
+  verifiedAt: BigInt              # Verification timestamp
+  verifiedBy: Bytes               # Verifier address
+  
+  # Reputation and stats
+  reputation: BigInt!              # Current reputation (0-1000)
+  jobsCompleted: BigInt!          # Number of completed jobs
+  jobsAssigned: BigInt!           # Number of assigned jobs
+  totalEarnings: BigInt!          # Total earnings in wei
+  
+  # Relationships
+  assignedJobs: [Job!]! @derivedFrom(field: "assignedWorker")
+  reputationHistory: [ReputationHistory!]! @derivedFrom(field: "worker")
+  
+  # Metadata
+  lastSeen: BigInt!               # Last activity timestamp
+  createdAt: BigInt!              # Entity creation time
+  updatedAt: BigInt!              # Last update time
+}
+
+type Job @entity {
+  id: ID!                         # Job ID from contract
+  chainJobId: BigInt!            # On-chain job identifier
+  creator: Bytes!                # Creator address
+  
+  # Asset information
+  assetCidPart1: String!         # Asset IPFS CID part 1
+  assetCidPart2: String          # Asset IPFS CID part 2
+  fullAssetCid: String!          # Combined asset IPFS CID
+  
+  # Job parameters
+  reward: BigInt!                # Reward amount in wei
+  deadline: BigInt!              # Job deadline timestamp
+  minReputation: BigInt!         # Minimum worker reputation required
+  
+  # Assignment and completion
+  assignedWorker: Worker         # Assigned worker (nullable)
+  assignedAt: BigInt            # Assignment timestamp
+  completed: Boolean!           # Completion status
+  completedAt: BigInt           # Completion timestamp
+  
+  # Results
+  resultCidPart1: String        # Result IPFS CID part 1
+  resultCidPart2: String        # Result IPFS CID part 2
+  fullResultCid: String         # Combined result IPFS CID
+  qualityScore: BigInt          # Quality score (0-100)
+  
+  # Relationships
+  events: [JobEvent!]! @derivedFrom(field: "job")
+  
+  # Status tracking
+  status: JobStatus!            # Current job status
+  createdAt: BigInt!            # Creation timestamp
+  updatedAt: BigInt!            # Last update timestamp
+}
+
+enum JobStatus {
+  OPEN
+  ASSIGNED
+  COMPLETED
+  CANCELLED
+}
+
+type ReputationHistory @entity {
+  id: ID!                       # Unique identifier
+  worker: Worker!               # Related worker
+  oldReputation: BigInt!        # Previous reputation
+  newReputation: BigInt!        # New reputation
+  changeAmount: BigInt!         # Change amount (can be negative)
+  reason: String!               # Reason for change
+  relatedJobId: BigInt         # Related job ID if applicable
+  qualityScore: BigInt         # Quality score if job-related
+  changedBy: Bytes             # Who initiated the change
+  transactionHash: Bytes!      # Transaction hash
+  blockNumber: BigInt!         # Block number
+  timestamp: BigInt!           # Event timestamp
+}
+
+type JobEvent @entity {
+  id: ID!                      # Unique identifier
+  job: Job!                    # Related job
+  eventType: JobEventType!     # Type of event
+  actor: Bytes                 # Address that triggered the event
+  transactionHash: Bytes!      # Transaction hash
+  blockNumber: BigInt!         # Block number
+  timestamp: BigInt!           # Event timestamp
+  
+  # Event-specific data
+  data: String                 # JSON string with event details
+}
+
+enum JobEventType {
+  CREATED
+  ASSIGNED
+  COMPLETED
+  CANCELLED
+}
+
+type DailyStats @entity {
+  id: ID!                      # Date in YYYY-MM-DD format
+  date: BigInt!               # Timestamp for the day
+  
+  # Job statistics
+  jobsCreated: BigInt!        # Jobs created on this day
+  jobsCompleted: BigInt!      # Jobs completed on this day
+  totalReward: BigInt!        # Total rewards distributed
+  averageQuality: BigDecimal! # Average quality score
+  
+  # Worker statistics
+  activeWorkers: BigInt!      # Active workers on this day
+  newWorkers: BigInt!         # New worker registrations
+  workersVerified: BigInt!    # Workers verified on this day
+  
+  # Network statistics
+  totalTransactions: BigInt!  # Total transactions
+  averageReputation: BigDecimal! # Average worker reputation
+}
+
+type GlobalStats @entity {
+  id: ID!                     # Always "global"
+  
+  # Totals
+  totalWorkers: BigInt!       # Total registered workers
+  totalVerifiedWorkers: BigInt! # Total verified workers
+  totalJobs: BigInt!          # Total jobs created
+  totalCompletedJobs: BigInt! # Total completed jobs
+  totalRewards: BigInt!       # Total rewards distributed
+  
+  # Averages
+  averageReputation: BigDecimal! # Average worker reputation
+  averageQualityScore: BigDecimal! # Average job quality
+  averageJobReward: BigDecimal! # Average job reward
+  
+  # Current state
+  openJobs: BigInt!           # Currently open jobs
+  assignedJobs: BigInt!       # Currently assigned jobs
+  activeWorkers: BigInt!      # Currently active workers
+  
+  # Last update
+  lastUpdated: BigInt!        # Last update timestamp
+}

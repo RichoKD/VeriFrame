@@ -1,36 +1,53 @@
-"use client";
-
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { StarknetConfig, publicProvider } from "@starknet-react/core";
-import { argent } from "@starknet-react/core";
-import { sepolia, mainnet } from "@starknet-react/chains";
+import ErrorReporter from "@/components/ErrorReporter";
+import Script from "next/script";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { QueryProvider } from "@/contexts/QueryProvider";
 
-const inter = Inter({
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
 });
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "StarkRender",
+  description: "Decentralized work platform powered by StarkNet",
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const chains = [sepolia, mainnet];
-  const provider = publicProvider();
-  const connectors = [argent()];
-
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased`}>
-        <StarknetConfig
-          chains={chains}
-          provider={provider}
-          connectors={connectors}
-          autoConnect
-        >
-          {children}
-        </StarknetConfig>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
+        suppressHydrationWarning
+      >
+        <ErrorReporter />
+        <QueryProvider>
+          <AuthProvider>
+            <Script
+              src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts//route-messenger.js"
+              strategy="afterInteractive"
+              data-target-origin="*"
+              data-message-type="ROUTE_CHANGE"
+              data-include-search-params="true"
+              data-only-in-iframe="true"
+              data-debug="true"
+              data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
+            />
+            {children}
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );
