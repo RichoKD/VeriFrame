@@ -1,5 +1,8 @@
 # Cairo
-
+completed_jobs.json
+build/
+dist/
+temp/
 target
 .snfoundry_cache/
 snfoundry_trace/

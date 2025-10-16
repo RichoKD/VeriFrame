@@ -8,9 +8,9 @@ import Image from "next/image";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 const menuItems = [
-  { name: "For Creators", href: "#" },
-  { name: "For Nodes", href: "#" },
-  { name: "For Admins", href: "#" },
+  // { name: "For Creators", href: "#" },
+  // { name: "For Nodes", href: "#" },
+  // { name: "For Admins", href: "#" },
   { name: "About", href: "#" },
 ];
 
@@ -150,7 +150,7 @@ export default function HeroSection() {
                   </p>
                 </div>
 
-                <div className="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 hover:border-purple-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
+                {/* <div className="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 hover:border-purple-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl flex items-center justify-center mb-4 mx-auto">
                     <span className="text-xl font-bold text-white">A</span>
                   </div>
@@ -161,13 +161,13 @@ export default function HeroSection() {
                     Oversee the ecosystem, resolve disputes, and ensure
                     fairness.
                   </p>
+                  </div> */}
                 </div>
-              </div>
             </div>
           </div>
         </section>
 
-        <section className="bg-zinc-950/90 relative z-10 py-16 border-t border-zinc-800">
+        {/* <section className="bg-zinc-950/90 relative z-10 py-16 border-t border-zinc-800">
           <div className="m-auto max-w-5xl flex flex-col items-center mt-16 px-6">
             <h2 className="text-center text-2xl font-medium text-slate-200">
               Built with modern technology stack.
@@ -196,7 +196,7 @@ export default function HeroSection() {
               />
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
     </>
   );
