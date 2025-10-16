@@ -1,6 +1,10 @@
 # Cairo
 __pycache__
+completed_jobs.json
+build/
+dist/
 temp/
+.pyc
 target
 .snfoundry_cache/
 snfoundry_trace/
@@ -9,7 +13,7 @@ profile/
 
 # Infra
 venv/
-*.env
+.env.local
 # Frontend
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
@@ -45,7 +49,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
 
 # vercel
 .vercel
@@ -53,3 +57,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python
+__pycache__
+*.pyc
+*.pyo
