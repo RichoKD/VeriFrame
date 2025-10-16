@@ -14,7 +14,9 @@ if os.getenv("ENV") is None:
 class Settings(BaseSettings):
 
     # Database settings
-    database_url: str = os.getenv("DATABASE_URL")
+    # database_url: str = os.getenv("DATABASE_URL")
+    database_url: str
+
     
     # StarkNet settings
     starknet_rpc_url: str = os.getenv("STARKNET_RPC_URL") or "http://localhost:5050"
@@ -72,6 +74,19 @@ class Settings(BaseSettings):
     # celery_result_backend: str = "redis://localhost:6379/2"
     
     model_config = {"env_file": ".env", "extra": "ignore"}
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Convert DATABASE_URL to async format for asyncpg
+        if self.database_url:
+            if self.database_url.startswith("postgres://"):
+                self.database_url = self.database_url.replace(
+                    "postgres://", "postgresql+asyncpg://", 1
+                )
+            elif self.database_url.startswith("postgresql://") and "asyncpg" not in self.database_url:
+                self.database_url = self.database_url.replace(
+                    "postgresql://", "postgresql+asyncpg://", 1
+                )
 
 # Global settings instance
 _settings = None
