@@ -2,8 +2,8 @@
   "network": "sepolia",
   "account": "stark1",
   "contract_name": "JobRegistry",
-  "class_hash": "0x01bebf773980988bae8f86cc522d1c9a7b85caf9c1a39d03370e477640234656",
-  "contract_address": "0x05a98233354356d31543b28e2f613fa763ca93a5361505765bad58d926d03ce6",
-  "deployed_at": "2025-08-23T18:00:44Z",
+  "class_hash": "0x027bbeb2a433457bccc2f34bc933aef4cb1484f4653cc9efe757b9ac1d5c55c8",
+  "contract_address": "0x03465f9dd6f9b94daf51baacbcf1eeab963d987b24286934e3c23a1b75c9e8da",
+  "deployed_at": "2025-10-16T09:35:13Z",
   "abi_path": "target/dev/veriframe_job_registry_JobRegistry.contract_class.json"
 }
