@@ -10,9 +10,9 @@ export default function Home() {
   return (
     <div>
       <HeroSection />
-      <BentoGrid />
-      <IntegrationSection />
-      <TestimonialSection />
+      {/* <BentoGrid /> */}
+      {/* <IntegrationSection /> */}
+      {/* <TestimonialSection /> */}
       <FooterSection />
     </div>
   );
