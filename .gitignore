@@ -1,8 +1,10 @@
 # Cairo
+__pycache__
 completed_jobs.json
 build/
 dist/
 temp/
+.pyc
 target
 .snfoundry_cache/
 snfoundry_trace/

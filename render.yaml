@@ -3,7 +3,7 @@ services:
   - type: web
     name: veriframe-backend  # Change to your preferred name
     env: python
-    pythonVersion: 3.12  # Specify your Python version
+    # pythonVersion: 3.12  # Specify your Python version
     rootDir: backend/
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT  # Assumes app instance named 'app' in main.py
@@ -33,7 +33,7 @@ services:
   - type: web
     name: veriframe-frontend  # Change to your preferred name
     env: node
-    nodeVersion: '22.15.1'
+    # nodeVersion: '22.15.1'
     rootDir: frontend/
     buildCommand: npm install && npm run build
     startCommand: npm start
