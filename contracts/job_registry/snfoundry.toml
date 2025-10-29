@@ -10,7 +10,7 @@ account = "account-1"                                     # Account from `accoun
 
 
 [sncast.stark1] 
-url = "https://starknet-sepolia.public.blastapi.io/rpc/v0_8"                                        # Define a profile name
+# url = "https://starknet-sepolia.public.blastapi.io/rpc/v0_8"                                        # Define a profile name
 # url = "https://api.cartridge.gg/x/starknet/sepolia" # Url of the RPC provider
 # account = "stark1"
 # keystore = "~/keystore"                                  # Path to the keystore file
