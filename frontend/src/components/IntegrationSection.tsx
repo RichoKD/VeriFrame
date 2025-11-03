@@ -50,15 +50,15 @@ const IntegrationSection = () => {
       <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-gradient-to-r from-blue-400/10 to-cyan-400/10 blur-2xl rounded-full opacity-30 animate-pulse"></div>
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[200px] bg-gradient-to-l from-purple-500/10 to-blue-500/10 blur-2xl rounded-full opacity-25"></div>
 
-      <div className="container mx-auto relative z-10">
+      <div className="container mx-auto px-6 relative z-10">
         {/* Header Section */}
-        <div className="text-center flex flex-col max-w-4xl mx-auto mb-20">
-          <div className="inline-flex w-fit mx-auto items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-sm">
+        <div className="text-center flex flex-col max-w-4xl mx-auto mb-16 space-y-6">
+          <div className="inline-flex w-fit mx-auto items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30 text-blue-300 text-sm font-medium backdrop-blur-sm">
             <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-lg shadow-cyan-400/50"></div>
             Blockchain Integrations
           </div>
 
-          <h2 className="text-4xl md:text-6xl lg:text-7xl tracking-tight mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
             <span className="bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
               Connect with trusted
             </span>
@@ -76,12 +76,12 @@ const IntegrationSection = () => {
         </div>
 
         {/* Enhanced Marquee Section with cosmic styling */}
-        <div className="relative py-2">
+        <div className="relative">
           {/* Enhanced gradient overlays with blue/cyan theme */}
           <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background z-10 pointer-events-none"></div>
 
           {/* First row */}
-          <div className="mb-6">
+          <div className="mb-8">
             <Marquee pauseOnHover className="[--duration:25s]">
               {platforms.map((platform, index) => (
                 <div
@@ -108,7 +108,7 @@ const IntegrationSection = () => {
           </div>
 
           {/* Second row (reverse) */}
-          <div className="mb-6">
+          <div className="mb-8">
             <Marquee pauseOnHover reverse className="[--duration:30s]">
               {[...platforms].reverse().map((platform, index) => (
                 <div
@@ -135,7 +135,7 @@ const IntegrationSection = () => {
           </div>
 
           {/* Third row */}
-          <div className="mb-6">
+          <div>
             <Marquee pauseOnHover className="[--duration:35s]">
               {platforms
                 .slice(0, 4)
