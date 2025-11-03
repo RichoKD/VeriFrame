@@ -106,16 +106,12 @@ export default function HeroSection() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button
+                <WalletConnectButton
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white h-12 px-8 rounded-lg shadow-lg hover:shadow-blue-500/25 transition-all duration-200"
-                >
-                  <Link href="#">
-                    <span className="text-base font-medium">
-                      Connect Wallet
-                    </span>
-                  </Link>
-                </Button>
+                  redirectTo="/dashboard"
+                  showIcon={false}
+                />
                 <Button
                   size="lg"
                   variant="outline"
