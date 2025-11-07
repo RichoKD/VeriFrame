@@ -4,8 +4,9 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Triangle, Settings, LogOut } from "lucide-react";
+import { Settings, LogOut } from "lucide-react";
 import { FooterSection } from "@/components/Footer";
+import { DashboardHeader } from "@/components/DashboardHeader";
 
 interface BaseLayoutProps {
   children: ReactNode;
@@ -15,6 +16,8 @@ interface BaseLayoutProps {
   showBackground?: boolean;
   showFooter?: boolean;
   gradientVariant?: "blue" | "cyan" | "purple" | "green";
+  useDashboardHeader?: boolean;
+  dashboardRole?: "creator" | "node" | "admin";
 }
 
 export default function BaseLayout({
@@ -25,6 +28,8 @@ export default function BaseLayout({
   showBackground = true,
   showFooter = true,
   gradientVariant = "blue",
+  useDashboardHeader = false,
+  dashboardRole = "creator",
 }: BaseLayoutProps) {
   // Gradient color configurations based on role/page type
   const gradientColors = {
@@ -82,81 +87,85 @@ export default function BaseLayout({
       )}
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800">
-        <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo/Brand */}
-            <Link
-              href="/"
-              className="flex items-center gap-2 group"
-            >
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-500/50 group-hover:scale-110">
-                <Triangle className="text-white w-5 h-5" />
-              </div>
-              <span className="text-xl font-bold text-slate-200 hidden sm:block">
-                StarkRender
-              </span>
-            </Link>
+      {useDashboardHeader ? (
+        <DashboardHeader role={dashboardRole} />
+      ) : (
+        <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800">
+          <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16 sm:h-20">
+              {/* Logo/Brand */}
+              <Link href="/" className="flex items-center gap-2 group shrink-0">
+                <Image
+                  src="/logo.png"
+                  alt="StarkRender Logo"
+                  width={140}
+                  height={50}
+                  className="h-8 sm:h-10 w-auto transition-all duration-300 group-hover:scale-105"
+                />
+              </Link>
 
-            {/* Center Title Section (Desktop) */}
+              {/* Center Title Section (Desktop) */}
+              {title && (
+                <div className="hidden lg:flex flex-col items-center flex-1 px-8 max-w-xl">
+                  <h1
+                    className={`text-md font-bold bg-gradient-to-r ${colors.title} bg-clip-text text-transparent text-center`}
+                  >
+                    {title}
+                  </h1>
+                  {subtitle && (
+                    <p className="text-md text-slate-400 mt-1 text-center line-clamp-1">
+                      {subtitle}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Header Actions */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                {headerActions ? (
+                  headerActions
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="hidden sm:flex border-slate-700 text-slate-300 hover:border-blue-500 hover:bg-blue-500/10 hover:text-blue-400 transition-all duration-300"
+                    >
+                      <Settings className="w-4 h-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Settings</span>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className="text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all duration-300"
+                    >
+                      <Link href="/">
+                        <LogOut className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Exit</span>
+                      </Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile Title */}
             {title && (
-              <div className="hidden lg:flex flex-col items-center flex-1 px-8 max-w-2xl">
+              <div className="lg:hidden pb-2 border-t border-zinc-800 mt-2 pt-2">
                 <h1
-                  className={`text-2xl font-bold bg-gradient-to-r ${colors.title} bg-clip-text text-transparent text-center`}
+                  className={`text-base sm:text-lg font-bold bg-gradient-to-r ${colors.title} bg-clip-text text-transparent`}
                 >
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="text-sm text-slate-400 mt-1 text-center line-clamp-1">{subtitle}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>
                 )}
               </div>
             )}
-
-            {/* Header Actions */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              {headerActions ? (
-                headerActions
-              ) : (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="hidden sm:flex border-slate-700 text-slate-300 hover:border-blue-500 hover:bg-blue-500/10 hover:text-blue-400 transition-all duration-300"
-                  >
-                    <Settings className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Settings</span>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all duration-300"
-                  >
-                    <Link href="/">
-                      <LogOut className="w-4 h-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Exit</span>
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Mobile Title */}
-          {title && (
-            <div className="lg:hidden pb-3 border-t border-zinc-800 mt-3 pt-3">
-              <h1
-                className={`text-lg sm:text-xl font-bold bg-gradient-to-r ${colors.title} bg-clip-text text-transparent`}
-              >
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="text-sm text-slate-400 mt-1">{subtitle}</p>
-              )}
-            </div>
-          )}
-        </nav>
-      </header>
+          </nav>
+        </header>
+      )}
 
       {/* Spacer for fixed header */}
       <div className="h-16" />

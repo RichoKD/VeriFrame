@@ -1,9 +1,8 @@
 "use client";
-import { Logo } from "@/components/logo";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, Triangle, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 
@@ -30,8 +29,14 @@ export default function HeroSection() {
                   aria-label="home"
                   className="flex items-center space-x-2"
                 >
-                  <Triangle className="text-blue-400" />
-                  <h3 className="text-lg text-slate-200">StarkRender</h3>
+                  <Image
+                    src="/logo.png"
+                    alt="StarkRender Logo"
+                    width={160}
+                    height={60}
+                    priority
+                    className="h-10 w-auto"
+                  />
                 </Link>
 
                 <button

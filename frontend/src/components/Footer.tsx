@@ -17,8 +17,8 @@ const navigation = [
     title: "Platform",
     links: [
       { name: "Nodes", href: "#" },
-      { name: "Creators", href: "#" },
-      { name: "Admins", href: "#" },
+      { name: "Creators", href: "dashboard/creators" },
+      { name: "Admins", href: "dashboard/admin" },
       { name: "Browse Jobs", href: "#" },
     ],
   },
