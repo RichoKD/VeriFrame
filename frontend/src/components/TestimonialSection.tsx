@@ -129,16 +129,18 @@ const TestimonialSection = () => {
     })
   );
   return (
-    <section className="relative py-32 max-w-7xl mx-auto overflow-hidden">
-      <div className="container flex flex-col items-center gap-6">
-        <h2 className="mb-2 ">Trusted by StarkRender Community</h2>
-        <p className="text-center ">
+    <section className="relative py-20 md:py-32 max-w-7xl mx-auto px-6 overflow-hidden">
+      <div className="container flex flex-col items-center gap-6 mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold text-center">
+          Trusted by StarkRender Community
+        </h2>
+        <p className="text-center text-lg md:text-xl text-slate-400 max-w-2xl">
           Decentralized work platform where Creators, Nodes, and Admins thrive
           together.
         </p>
       </div>
       <div className="lg:container">
-        <div className="mt-16 space-y-4 relative">
+        <div className="space-y-6 relative">
           {/* Left and right blur gradients */}
           <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white dark:from-background to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white dark:from-background to-transparent z-10 pointer-events-none" />

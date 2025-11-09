@@ -91,12 +91,12 @@ export function WalletConnectButton({
         {isConnecting ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Connecting...
+            <span className="text-base font-medium">Connecting...</span>
           </>
         ) : (
           <>
             {showIcon && <Wallet className="w-4 h-4 mr-2" />}
-            Connect Wallet
+            <span className="text-base font-medium">Connect Wallet</span>
           </>
         )}
       </Button>

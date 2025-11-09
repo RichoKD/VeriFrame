@@ -9,7 +9,7 @@ set -e
 # Default values
 NETWORK=${1:-"dev_net"}
 ACCOUNT=${2:-"account-1"}
-BUILD_CONTRACT=${3:-false}
+BUILD_CONTRACT=${3:-true}
 TOKEN_ADDRESS=${4:-"0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"} # Sepolia STRK
 
 # echo "[INIT] Waiting for StarkNet Devnet..."

@@ -14,7 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const BentoGrid = () => {
   return (
-    <section className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
+    <section className="py-20 md:py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
       {/* Background cosmic image with overlay */}
       <div className="absolute inset-0 opacity-30">
         <img
@@ -25,8 +25,8 @@ const BentoGrid = () => {
         <div className="absolute inset-0 bg-slate-900/60" />
       </div>
 
-      <div className="container max-w-7xl mx-auto relative z-10">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-6 lg:grid-cols-12">
+      <div className="container max-w-7xl mx-auto px-6 relative z-10">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-6 lg:grid-cols-12">
           <div className="relative h-60 overflow-hidden rounded-3xl md:col-span-2 md:row-span-2 md:h-[400px] lg:col-span-4 lg:h-full bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border border-blue-500/30">
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
             <div className="absolute bottom-6 left-6 z-10 text-white">
@@ -56,8 +56,8 @@ const BentoGrid = () => {
           </div>
 
           <Card className="col-span-1 rounded-3xl md:col-span-2 md:row-span-1 md:h-[192px] lg:col-span-2 bg-gradient-to-br from-slate-800/50 to-slate-700/50 border border-slate-600/30 backdrop-blur-sm">
-            <CardContent className="flex h-full flex-col justify-center p-4 md:p-6">
-              <div className="mb-2 text-4xl font-bold md:text-4xl lg:text-6xl text-cyan-300">
+            <CardContent className="flex h-full flex-col justify-center p-6 md:p-8 space-y-2">
+              <div className="text-4xl font-bold md:text-4xl lg:text-6xl text-cyan-300">
                 95
                 <span className="align-top text-2xl md:text-xl lg:text-3xl text-cyan-400">
                   %
@@ -83,26 +83,24 @@ const BentoGrid = () => {
           </div>
 
           <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm col-span-1 rounded-3xl md:col-span-4 md:row-span-1 md:h-[300px] lg:col-span-4 border border-slate-600/30">
-            <CardContent className="h-full p-4 md:p-5">
-              <div className="flex h-full flex-col justify-end">
-                <div className="space-y-2">
-                  <div className="text-4xl font-normal md:text-5xl lg:text-6xl text-cyan-300">
-                    $0
-                  </div>
-                  <div className="text-slate-400">
-                    Platform fee for creators
-                  </div>
-                  <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-none">
-                    Get Started <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+            <CardContent className="h-full p-6 md:p-8">
+              <div className="flex h-full flex-col justify-end space-y-6">
+                <div className="text-4xl font-normal md:text-5xl lg:text-6xl text-cyan-300">
+                  $0
                 </div>
+                <div className="text-slate-400 text-sm md:text-base">
+                  Platform fee for creators
+                </div>
+                <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-none h-12 px-8 rounded-lg transition-all duration-200">
+                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
 
           <Card className="col-span-1 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-3xl md:col-span-2 md:row-span-1 md:h-[300px] lg:col-span-3 border border-slate-600/30">
-            <CardContent className="flex h-full flex-col justify-center p-4 md:p-5">
-              <div className="mb-3">
+            <CardContent className="flex h-full flex-col justify-center p-6 md:p-8 space-y-6">
+              <div>
                 <span className="text-4xl font-bold md:text-3xl lg:text-6xl text-cyan-300">
                   1K
                 </span>
@@ -110,7 +108,7 @@ const BentoGrid = () => {
                   +
                 </span>
               </div>
-              <p className="mb-4 ml-0 text-sm md:text-sm text-slate-400">
+              <p className="text-sm md:text-sm text-slate-400">
                 Active nodes worldwide
               </p>
               <div className="flex -space-x-2">
