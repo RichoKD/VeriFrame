@@ -1,16 +1,14 @@
 "use client";
-import { Logo } from "@/components/logo";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, Triangle, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 const menuItems = [
-  // { name: "For Creators", href: "#" },
-  // { name: "For Nodes", href: "#" },
-  // { name: "For Admins", href: "#" },
+  { name: "For Creators", href: "#" },
+  { name: "For Nodes", href: "#" },
   { name: "About", href: "#" },
 ];
 
@@ -31,8 +29,14 @@ export default function HeroSection() {
                   aria-label="home"
                   className="flex items-center space-x-2"
                 >
-                  <Triangle className="text-blue-400" />
-                  <h3 className="text-lg text-slate-200">StarkRender</h3>
+                  <Image
+                    src="/logo.png"
+                    alt="StarkRender Logo"
+                    width={160}
+                    height={60}
+                    priority
+                    className="h-10 w-auto"
+                  />
                 </Link>
 
                 <button
@@ -94,109 +98,66 @@ export default function HeroSection() {
         </div>
 
         <section className="relative z-10">
-          <div className="relative mx-auto max-w-5xl px-6 py-32 lg:py-40">
-            <div className="relative z-10 mx-auto max-w-3xl text-center">
-              <h2 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-200 via-blue-300 to-cyan-300 bg-clip-text text-transparent mb-6">
+          <div className="relative mx-auto max-w-5xl px-6 py-20 md:py-32 lg:py-40">
+            <div className="relative z-10 mx-auto max-w-3xl text-center space-y-8">
+              <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-200 via-blue-300 to-cyan-300 bg-clip-text text-transparent leading-tight">
                 Decentralized Work,
                 <br />
                 Verified Results
               </h2>
-              <p className="mx-auto my-8 max-w-2xl text-lg text-slate-300 leading-relaxed">
+              <p className="mx-auto max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed">
                 Where Creators post jobs, Nodes deliver excellence, and AI
                 ensures quality. Join the future of verified work on Starknet.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <WalletConnectButton
                   size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300 text-lg font-medium"
+                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white h-12 px-8 rounded-lg shadow-lg hover:shadow-blue-500/25 transition-all duration-200"
                   redirectTo="/dashboard"
+                  showIcon={false}
                 />
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/10 px-8 py-4 rounded-xl"
+                  className="border-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/10 h-12 px-8 rounded-lg transition-all duration-200"
                 >
                   <Link href="#">
-                    <span className="text-lg font-medium">Learn More</span>
+                    <span className="text-base font-medium">Learn More</span>
                   </Link>
                 </Button>
               </div>
 
               {/* Role Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
-                <div className="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-12 max-w-2xl mx-auto">
+                <div className="bg-zinc-900/80 rounded-2xl p-8 border border-zinc-800 hover:border-blue-500/50 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 space-y-6">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center mx-auto">
                     <span className="text-xl font-bold text-white">C</span>
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-200 mb-3">
+                  <h3 className="text-xl font-semibold text-slate-200">
                     For Creators
                   </h3>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-slate-400 text-sm leading-relaxed">
                     Post jobs, manage submissions, and release rewards with
                     confidence.
                   </p>
                 </div>
 
-                <div className="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10">
-                  <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                <div className="bg-zinc-900/80 rounded-2xl p-8 border border-zinc-800 hover:border-cyan-500/50 transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 space-y-6">
+                  <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto">
                     <span className="text-xl font-bold text-white">W</span>
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-200 mb-3">
+                  <h3 className="text-xl font-semibold text-slate-200">
                     For Nodes
                   </h3>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-slate-400 text-sm leading-relaxed">
                     Find jobs, submit quality work, and earn rewards in crypto.
                   </p>
                 </div>
-
-                {/* <div className="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 hover:border-purple-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl flex items-center justify-center mb-4 mx-auto">
-                    <span className="text-xl font-bold text-white">A</span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-slate-200 mb-3">
-                    For Admins
-                  </h3>
-                  <p className="text-slate-400 text-sm">
-                    Oversee the ecosystem, resolve disputes, and ensure
-                    fairness.
-                  </p>
-                  </div> */}
-                </div>
+              </div>
             </div>
           </div>
         </section>
-
-        {/* <section className="bg-zinc-950/90 relative z-10 py-16 border-t border-zinc-800">
-          <div className="m-auto max-w-5xl flex flex-col items-center mt-16 px-6">
-            <h2 className="text-center text-2xl font-medium text-slate-200">
-              Built with modern technology stack.
-            </h2>
-            <div className="mx-auto mt-20 flex max-w-4xl flex-wrap items-center justify-center gap-x-12 gap-y-8 sm:gap-x-16 sm:gap-y-12 opacity-60">
-              <img
-                className="h-4 w-fit brightness-0 invert opacity-60"
-                src="https://html.tailus.io/blocks/customers/github.svg"
-                alt="GitHub Logo"
-                height="16"
-                width="auto"
-              />
-              <img
-                className="h-4 w-fit brightness-0 invert opacity-60"
-                src="https://html.tailus.io/blocks/customers/tailwindcss.svg"
-                alt="Tailwind CSS Logo"
-                height="16"
-                width="auto"
-              />
-              <img
-                className="h-5 w-fit brightness-0 invert opacity-60"
-                src="https://html.tailus.io/blocks/customers/vercel.svg"
-                alt="Vercel Logo"
-                height="20"
-                width="auto"
-              />
-            </div>
-          </div>
-        </section> */}
       </main>
     </>
   );

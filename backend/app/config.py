@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     # StarkNet settings
     starknet_rpc_url: str = os.getenv("STARKNET_RPC_URL") or "http://localhost:5050"
     contract_address: str = os.getenv("JOB_REGISTRY_CONTRACT_ADDRESS") or "0x0315980c7693d042ed612f84cd513f1751688170cd29ed04f4eaa51ec1c26381"
-    contract_abi_path: str = "../contracts/job_registry/target/dev/veriframe_job_registry_JobRegistry.contract_class.json"
+    contract_abi_path: str = "./veriframe_job_registry_JobRegistry.contract_class.json"
     # contract_abi_path: str = "./contracts/job_registry/target/dev/veriframe_job_registry.contract_class.json"
     
     network: str = os.getenv("STARKNET_NETWORK") or "dev_net" #"devnet"
