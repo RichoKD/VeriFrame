@@ -45,7 +45,9 @@ export function DashboardHeader({ role = "creator" }: DashboardHeaderProps) {
 
           {/* Centered Dashboard Title */}
           <div className="hidden md:flex flex-1 justify-center">
-            <h1 className={`text-base font-semibold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
+            <h1
+              className={`text-base font-semibold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
+            >
               {title}
             </h1>
           </div>
@@ -77,7 +79,9 @@ export function DashboardHeader({ role = "creator" }: DashboardHeaderProps) {
 
         {/* Mobile Title */}
         <div className="md:hidden pb-1.5 border-t border-zinc-800 mt-1.5 pt-1.5">
-          <h1 className={`text-sm font-semibold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
+          <h1
+            className={`text-sm font-semibold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
+          >
             {title}
           </h1>
         </div>
