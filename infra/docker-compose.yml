@@ -58,33 +58,21 @@ services:
   #   networks:
   #     - veri-frame-net
 
-  # devnet-init:
-  #   build:
-  #     context: ..
-  #     dockerfile: infra/devnet-init.Dockerfile
-  #   depends_on:
-  #     - starknet-devnet
-  #   volumes:
-  #     - ../contracts/job_registry:/contracts/job_registry
-  #     - ./worker.env:/infra/worker.env
-  #   networks:
-  #     - veri-frame-net
 
-
-#   worker:
-#     build:
-#       context: ../worker
-#       dockerfile: Dockerfile
-#     container_name: veri-frame-worker
-#     env_file:
-#       - ./worker.env
-#     depends_on:
-#       - devnet-init
-#       - ipfs-node
-#     networks:
-#       - veri-frame-net
-#     volumes:
-#       - ../worker:/app
+  worker:
+    build:
+      context: ../worker
+      dockerfile: Dockerfile
+    container_name: veri-frame-worker
+    env_file:
+      - ./worker.env
+    depends_on:
+      - backend
+      - ipfs-node
+    networks:
+      - veri-frame-net
+    volumes:
+      - ../worker:/app
 
 volumes:
   ipfs_data:

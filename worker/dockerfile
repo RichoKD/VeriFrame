@@ -19,4 +19,4 @@ COPY . .
 # Set environment variable for Blender path
 ENV BLENDER_PATH=blender
 
-CMD ["python", "src/main.py"]
+CMD ["python", "src/main_api.py"]

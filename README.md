@@ -43,6 +43,7 @@ VeriFrame connects job creators who need Blender rendering services with workers
 - Blender 4.0.2+
 - Cairo/Scarb 2.11.4+
 - IPFS node
+- Docker
 
 ### Installation
 
@@ -52,7 +53,7 @@ VeriFrame connects job creators who need Blender rendering services with workers
    cd VeriFrame
    ```
 
-2. **Install dependencies**
+2. **Install dependencies (Local) or you can use docker**
    ```bash
    # Frontend
    cd frontend
@@ -73,6 +74,8 @@ VeriFrame connects job creators who need Blender rendering services with workers
    scarb build
    ```
 
+   ****
+
 3. **Configure environment**
    ```bash
    # configure snfoundry.toml with your sepolia account
@@ -83,19 +86,15 @@ VeriFrame connects job creators who need Blender rendering services with workers
    # JOB_REGISTRY_ADDRESS=0x03103f3d37047b8bd0680c22a9b8d9502d5d1e34ab12259659dea2f6354ad7e8
    ```
 
-4. **Start services**
+4. **Start services (Backend, DB, Worker node, Ipfs node)**
    ```bash
-   # Start IPFS (if not running)
     cd infra
-    docker compose up
+    docker compose up --build
 
    # Start frontend
    cd frontend
    npm run dev
 
-   # Start worker (in another terminal)
-   cd worker
-   python3 src/main.py
    ```
 
 ## 📖 Usage
@@ -132,7 +131,7 @@ VeriFrame connects job creators who need Blender rendering services with workers
    ```
 
 3. **Worker automatically:**
-   - Polls for available jobs
+   - Checks for available jobs
    - Downloads .blend files from IPFS
    - Renders using Blender
    - Uploads results to IPFS
@@ -177,6 +176,8 @@ cd worker
 
 # Install development dependencies
 pip install -r requirements.txt
+
+# Make sure blender is in path
 
 # Run with debug output
 PYTHONPATH=src python3 src/main.py
