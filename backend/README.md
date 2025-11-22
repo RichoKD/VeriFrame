@@ -1,6 +1,6 @@
-# VeriFrame Backend
+# FluxFrame Backend
 
-FastAPI backend service for the VeriFrame decentralized computing platform.
+FastAPI backend service for the FluxFrame decentralized computing platform.
 
 ## Features
 
@@ -59,10 +59,10 @@ backend/
 
 3. **Update configuration in `.env`:**
    ```env
-   DATABASE_URL=postgresql+asyncpg://user:password@localhost/veriframe
+   DATABASE_URL=postgresql+asyncpg://user:password@localhost/fluxframe_db
    STARKNET_RPC_URL=http://localhost:5050
    CONTRACT_ADDRESS=0x...  # Your deployed contract address
-   CONTRACT_ABI_PATH=../contracts/job_registry/target/dev/veriframe_job_registry.contract_class.json
+   CONTRACT_ABI_PATH=../contracts/job_registry/target/dev/fluxframe_job_registry.contract_class.json
    ```
 
 4. **Start the backend:**
@@ -164,7 +164,7 @@ Key configuration options in `.env`:
 
 ```env
 # Database
-DATABASE_URL=postgresql+asyncpg://user:password@localhost/veriframe
+DATABASE_URL=postgresql+asyncpg://user:password@localhost/fluxframe_db
 
 # StarkNet
 STARKNET_RPC_URL=http://localhost:5050
@@ -248,9 +248,9 @@ Monitor these endpoints for:
 - Event indexer status
 - StarkNet node connectivity
 
-## Integration with VeriFrame
+## Integration with FluxFrame
 
-The backend integrates with other VeriFrame components:
+The backend integrates with other FluxFrame components:
 
 1. **Smart Contracts**: Reads worker and job data from deployed contracts
 2. **Worker Nodes**: Provides APIs for worker registration and job polling

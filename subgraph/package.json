@@ -1,14 +1,14 @@
 {
-  "name": "veriframe-subgraph",
+  "name": "fluxframe-subgraph",
   "version": "1.0.0",
-  "description": "The Graph subgraph for VeriFrame decentralized computing platform",
+  "description": "The Graph subgraph for FluxFrame decentralized computing platform",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ veriframe/veriframe-subgraph",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 veriframe/veriframe-subgraph",
-    "create-local": "graph create --node http://localhost:8020/ veriframe/veriframe-subgraph",
-    "remove-local": "graph remove --node http://localhost:8020/ veriframe/veriframe-subgraph",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ fluxframe/fluxframe-subgraph",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 fluxframe/fluxframe-subgraph",
+    "create-local": "graph create --node http://localhost:8020/ fluxframe/fluxframe-subgraph",
+    "remove-local": "graph remove --node http://localhost:8020/ fluxframe/fluxframe-subgraph",
     "test": "graph test"
   },
   "dependencies": {

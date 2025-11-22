@@ -706,7 +706,7 @@ async def register_worker_if_needed(contract, worker_address):
                     "gpu_available": True,  # Could be detected
                     "cpu_cores": 4,  # Could be detected
                 },
-                "contact_info": "worker@veriframe.dev"
+                "contact_info": "worker@fluxframe.dev"
             }
             
             # Upload worker info to IPFS (for now, use a placeholder)

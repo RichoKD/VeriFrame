@@ -29,7 +29,7 @@ class StarkNetAuthenticator:
         
         # Human-readable message for display
         display_message = (
-            f"VeriFrame Authentication\n"
+            f"FluxFrame Authentication\n"
             f"Address: {address}\n"
             f"Timestamp: {timestamp}\n"
             f"Nonce: {nonce}\n"

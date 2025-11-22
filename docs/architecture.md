@@ -1,5 +1,5 @@
 ```
-VeriFrame/
+FluxFrame/
 │
 ├── contracts/                     # All Cairo smart contracts
 │   ├── job_registry/               # Job registry contract (Cairo v2)

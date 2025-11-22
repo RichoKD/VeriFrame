@@ -2,7 +2,7 @@
 
 ## What Was Changed
 
-Successfully refactored the VeriFrame worker from blockchain-based polling to API-based workflow.
+Successfully refactored the FluxFrame worker from blockchain-based polling to API-based workflow.
 
 ### Files Created
 

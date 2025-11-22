@@ -1,6 +1,6 @@
-# VeriFrame Tool Versions
+# FluxFrame Tool Versions
 
-This document lists all the tools and their versions used in the VeriFrame project.
+This document lists all the tools and their versions used in the FluxFrame project.
 
 ## Core Development Tools
 
@@ -134,4 +134,4 @@ sudo apt install blender
 ---
 
 **Last Updated**: August 23, 2025  
-**Project Version**: VeriFrame v0.1.0
+**Project Version**: FluxFrame v0.2.0
