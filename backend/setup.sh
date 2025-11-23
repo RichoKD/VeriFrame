@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# VeriFrame Backend Setup Script
+# FluxFrame Backend Setup Script
 
 set -e
 
-echo "🚀 Setting up VeriFrame Backend..."
+echo "🚀 Setting up FluxFrame Backend..."
 
 # Get the directory of the script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -90,4 +90,4 @@ if command -v redis-cli &> /dev/null; then
 fi
 
 echo ""
-echo "🎉 VeriFrame Backend is ready!"
+echo "🎉 FluxFrame Backend is ready!"

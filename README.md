@@ -1,12 +1,12 @@
-# VeriFrame
+# FluxFrame
 
 **Decentralized Blender Rendering Platform on Starknet**
 
-VeriFrame is a blockchain-powered platform that enables users to submit Blender rendering jobs and have them processed by a distributed network of workers. Built on Starknet, it provides a trustless and verifiable way to handle 3D rendering tasks with automatic payment distribution.
+FluxFrame is a blockchain-powered platform that enables users to submit Blender rendering jobs and have them processed by a distributed network of workers. Built on Starknet, it provides a trustless and verifiable way to handle 3D rendering tasks with automatic payment distribution.
 
 ## 🎯 Overview
 
-VeriFrame connects job creators who need Blender rendering services with workers who provide computational resources. The platform uses smart contracts to escrow payments, verify job completion, and automatically distribute rewards.
+FluxFrame connects job creators who need Blender rendering services with workers who provide computational resources. The platform uses smart contracts to escrow payments, verify job completion, and automatically distribute rewards.
 
 ### Key Features
 
@@ -43,16 +43,17 @@ VeriFrame connects job creators who need Blender rendering services with workers
 - Blender 4.0.2+
 - Cairo/Scarb 2.11.4+
 - IPFS node
+- Docker
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/RichoKD/VeriFrame.git
-   cd VeriFrame
+   git clone https://github.com/RichoKD/FluxFrame.git
+   cd FluxFrame
    ```
 
-2. **Install dependencies**
+2. **Install dependencies (Local) or you can use docker**
    ```bash
    # Frontend
    cd frontend
@@ -73,6 +74,8 @@ VeriFrame connects job creators who need Blender rendering services with workers
    scarb build
    ```
 
+   ****
+
 3. **Configure environment**
    ```bash
    # configure snfoundry.toml with your sepolia account
@@ -83,19 +86,15 @@ VeriFrame connects job creators who need Blender rendering services with workers
    # JOB_REGISTRY_ADDRESS=0x03103f3d37047b8bd0680c22a9b8d9502d5d1e34ab12259659dea2f6354ad7e8
    ```
 
-4. **Start services**
+4. **Start services (Backend, DB, Worker node, Ipfs node)**
    ```bash
-   # Start IPFS (if not running)
     cd infra
-    docker compose up
+    docker compose up --build
 
    # Start frontend
    cd frontend
    npm run dev
 
-   # Start worker (in another terminal)
-   cd worker
-   python3 src/main.py
    ```
 
 ## 📖 Usage
@@ -132,7 +131,7 @@ VeriFrame connects job creators who need Blender rendering services with workers
    ```
 
 3. **Worker automatically:**
-   - Polls for available jobs
+   - Checks for available jobs
    - Downloads .blend files from IPFS
    - Renders using Blender
    - Uploads results to IPFS
@@ -178,6 +177,8 @@ cd worker
 # Install development dependencies
 pip install -r requirements.txt
 
+# Make sure blender is in path
+
 # Run with debug output
 PYTHONPATH=src python3 src/main.py
 ```
@@ -206,7 +207,7 @@ python3 src/main.py
 ## 📁 Project Structure
 
 ```
-VeriFrame/
+FluxFrame/
 ├── contracts/          # Cairo smart contracts
 │   └── job_registry/   # Main job registry contract
 ├── frontend/           # Next.js web interface
@@ -312,4 +313,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**VeriFrame v0.1.0** - Democratizing 3D rendering through blockchain technology
+**FluxFrame v0.1.0** - Democratizing 3D rendering through blockchain technology

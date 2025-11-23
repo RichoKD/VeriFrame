@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 app = FastAPI(
-    title="VeriFrame Backend API",
-    description="Backend service for VeriFrame decentralized computing platform",
+    title="FluxFrame Backend API",
+    description="Backend service for FluxFrame decentralized computing platform",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -49,7 +49,7 @@ event_indexer = None
 async def startup_event():
     """Initialize services on startup"""
     global event_indexer
-    logger.info("Starting VeriFrame Backend API...")
+    logger.info("Starting FluxFrame Backend API...")
     
     # Initialize database
     from app.database import init_db
@@ -61,24 +61,24 @@ async def startup_event():
         event_indexer = EventIndexer()
         asyncio.create_task(event_indexer.start())
     
-    logger.info("VeriFrame Backend API started successfully")
+    logger.info("FluxFrame Backend API started successfully")
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Clean up resources on shutdown"""
     global event_indexer
-    logger.info("Shutting down VeriFrame Backend API...")
+    logger.info("Shutting down FluxFrame Backend API...")
     
     if event_indexer:
         await event_indexer.stop()
     
-    logger.info("VeriFrame Backend API stopped")
+    logger.info("FluxFrame Backend API stopped")
 
 @app.get("/")
 async def root():
     """Health check endpoint"""
     return {
-        "message": "VeriFrame Backend API",
+        "message": "FluxFrame Backend API",
         "version": "1.0.0",
         "status": "running"
     }

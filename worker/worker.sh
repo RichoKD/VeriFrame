@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# VeriFrame Worker Switcher
+# FluxFrame Worker Switcher
 # Easily switch between old and new worker implementations
 
 set -e
@@ -8,7 +8,7 @@ set -e
 WORKER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$WORKER_DIR"
 
-echo "🔧 VeriFrame Worker Switcher"
+echo "🔧 FluxFrame Worker Switcher"
 echo "============================"
 echo ""
 

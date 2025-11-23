@@ -50,8 +50,8 @@ class GraphQLClient:
             logger.error(f"GraphQL query failed: {e}")
             raise
 
-class VeriFrameGraphClient:
-    """High-level client for VeriFrame subgraph queries"""
+class FluxFrameGraphClient:
+    """High-level client for FluxFrame subgraph queries"""
     
     def __init__(self):
         self.client = GraphQLClient()
@@ -343,9 +343,9 @@ class VeriFrameGraphClient:
 # Global client instance
 _graph_client = None
 
-async def get_graph_client() -> VeriFrameGraphClient:
-    """Get or create VeriFrame Graph client instance"""
+async def get_graph_client() -> FluxFrameGraphClient:
+    """Get or create FluxFrame Graph client instance"""
     global _graph_client
     if _graph_client is None:
-        _graph_client = VeriFrameGraphClient()
+        _graph_client = FluxFrameGraphClient()
     return _graph_client

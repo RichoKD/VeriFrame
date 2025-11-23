@@ -1,1 +1,1 @@
-"""Authentication module for VeriFrame backend."""
+"""Authentication module for FluxFrame backend."""

@@ -1,4 +1,4 @@
-// VeriFrame Job Registry with OpenZeppelin Integration
+// FluxFrame Job Registry with OpenZeppelin Integration
 use starknet::ContractAddress;
 
 // Interface representing the Job Registry contract.

@@ -13,7 +13,7 @@ Get the new API-based worker running in 5 minutes.
 
 ### 1. Navigate to Worker Directory
 ```bash
-cd /home/rico/cairo/VeriFrame/worker
+cd /home/rico/cairo/FluxFrame/worker
 ```
 
 ### 2. Create Environment File
@@ -34,7 +34,7 @@ python3 src/main_api.py
 ## Expected Output
 
 ```
-[Worker] Starting VeriFrame Worker (API-based)
+[Worker] Starting FluxFrame Worker (API-based)
 [Worker] Backend API: http://localhost:8000/api/v1
 [Worker] Worker Address: 0x1234...
 [Worker] ipfshttpclient imported successfully
@@ -128,7 +128,7 @@ POLL_INTERVAL=5  # Poll every 5 seconds (faster)
 
 ### Use Remote Backend
 ```bash
-BACKEND_API_URL=https://api.veriframe.io/api/v1
+BACKEND_API_URL=https://api.fluxframe.io/api/v1
 ```
 
 ### Use Remote IPFS
