@@ -31,7 +31,7 @@ export default function HeroSection() {
                 >
                   <Image
                     src="/logo.png"
-                    alt="StarkRender Logo"
+                    alt="FluxFrame Logo"
                     width={160}
                     height={60}
                     priority
