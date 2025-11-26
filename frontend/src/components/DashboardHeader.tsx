@@ -35,7 +35,7 @@ export function DashboardHeader({ role = "creator" }: DashboardHeaderProps) {
           <Link href="/" className="flex items-center gap-2 group shrink-0">
             <Image
               src="/logo.png"
-              alt="StarkRender Logo"
+              alt="FluxFrame Logo"
               width={140}
               height={50}
               className="h-8 w-auto transition-all duration-300 group-hover:scale-105"
